@@ -1,28 +1,230 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Time Tracker</title>
-        <style>
-            body{
-                width: 300px;
-                padding: 15px;
-                font-family: Arial, sans-serif;
-                background-color: #f0f0f0;
-            }
-            h1{
-                font: size 18px;
-                margin: 0 0 15px 0;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Time Tracker</h1>
-        <div id="stats">Loading...</div>
+<head>
+  <meta charset="UTF-8">
+  <title>Flavortown Tracker</title>
+  <style>
+  body {
+    width: 320px;
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f5e6d3 0%, #e8d4b8 100%);
+    color: #5c4033;
+  }
+  
+  .header {
+    background: linear-gradient(135deg, #d4a574 0%, #b8936f 100%);
+    padding: 20px;
+    text-align: center;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+      .cooking-box {
+      background: #fff4e6;
+      margin: 15px;
+      padding: 15px;
+      border-radius: 15px;
+      border: 3px solid #ffd699;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .cooking-emoji {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+    
+    .cooking-time {
+      font-size: 20px;
+      font-weight: bold;
+      color: #d4721a;
+    }
+    
+  
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    margin: 15px;
+  }
+  
+  .stat-box {
+    flex: 1;
+    background: #fff4e6;
+    padding: 12px;
+    border-radius: 12px;
+    border: 3px solid #ffd699;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    font-size: 12px;
+  }
+  
+  .stat-emoji {
+    font-size: 24px;
+    margin-bottom: 3px;
+  }
+  
+  .stat-time {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d4721a;
+  }
+  
+  .sites-list {
+    margin: 15px;
+    padding: 15px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 15px;
+    font-size: 13px;
+  }
+  
+  .site-item {
+    padding: 8px;
+    margin: 5px 0;
+    background: #fff;
+    border-radius: 10px;
+    border-left: 4px solid #d4a574;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .site-item:hover {
+    background: #fff9f0;
+  }
+  
+  .context-menu {
+    position: absolute;
+    background: white;
+    border: 2px solid #d4a574;
+    border-radius: 8px;
+    padding: 5px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+  
+  .context-menu div {
+    padding: 8px 15px;
+    cursor: pointer;
+  }
+  
+  .context-menu div:hover {
+    background: #f5e6d3;
+  }
+  
+  .category-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    margin-left: 5px;
+  }
+  
+  .study-badge {
+    background: #c8e6c9;
+    color: #2e7d32;
+  }
+  
+  .procrastination-badge {
+    background: #ffcdd2;
+    color: #c62828;
+  }
+</style>
+<style>
+  .tabs {
+    display: flex;
+    gap: 5px;
+    margin: 15px 15px 0 15px;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .tab.active {
+    background: rgba(255,255,255,0.9);
+    border-bottom: 3px solid #d4a574;
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  .chart-container {
+  margin: 15px;
+  padding: 20px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 15px;
+  text-align: center;
+}
 
-        <script src="popup.js"></script>
-    </body>
+.pie-chart {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 15px auto;
+}
+
+.date-display {
+  font-size: 14px;
+  color: #5c4033;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 15px;
+  font-size: 11px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+</style>
+
+</head>
+<body>
+  <div class="header">
+    <h1>🍳 Flavortown Timer</h1>
+  </div>
+  
+  <div class="tabs">
+  <div class="tab active" data-tab="today">Today</div>
+  <div class="tab" data-tab="week">This Week</div>
+  <div class="tab" data-tab="month">This Month</div>
+</div>
+
+  <div id="today-content" class="tab-content active"></div>
+  <div id="week-content" class="tab-content"></div>
+  <div id="month-content" class="tab-content"></div>
+  
+  <script src="popup.js"></script>
+</body>
 </html>
-
-
 
