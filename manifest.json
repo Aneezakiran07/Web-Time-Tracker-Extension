@@ -1,17 +1,27 @@
 {
-    "manifest_version":3,
-    "name":"time_tracker",
-    "version":"1.0",
-    "description": "Track time spent on websites - privacy first!",
-    "permissions": [
+  "manifest_version": 3,
+  "name": "Flavortown Extension",
+  "version": "1.0",
+  "description": "Track your cooking time on Flavortown!",
+  "permissions": [
     "tabs",
-    "storage"
-    ],
-    "action": {
+    "storage",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "*://flavortown.com/*"
+  ],
+  "action": {
     "default_popup": "popup.html"
   },
-    "background": {
-        "service_worker": "background.js"
-    }
+  "background": {
+    "service_worker": "background.js"
+  },
+  "declarative_net_request": {
+    "rule_resources": [{
+      "id": "ruleset_1",
+      "enabled": true,
+      "path": "rules.json"
+    }]
+  }
 }
-
