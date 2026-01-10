@@ -109,9 +109,9 @@
     color: #2e7d32;
   }
   
-  .procrastination-badge {
-    background: #ffcdd2;
-    color: #c62828;
+  .entertainment-badge {
+    background: #fff9c4;
+    color: #f57f17;
   }
 
   .tabs {
@@ -127,7 +127,7 @@
     border-radius: 10px 10px 0 0;
     text-align: center;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
   }
   
@@ -184,6 +184,198 @@
     width: 12px;
     height: 12px;
     border-radius: 3px;
+  }
+
+  /* FOCUS SESSION STYLES */
+  .focus-container {
+    padding: 15px;
+  }
+
+  .focus-setup {
+    background: rgba(255,255,255,0.8);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+  }
+
+  .focus-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    color: #5c4033;
+  }
+
+  .input-group {
+    margin-bottom: 15px;
+  }
+
+  .input-label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #5c4033;
+  }
+
+  .time-inputs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .time-input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #d4a574;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+    background: white;
+  }
+
+  .time-input:focus {
+    outline: none;
+    border-color: #b8936f;
+  }
+
+  .preset-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .preset-btn {
+    padding: 8px 12px;
+    background: #fff4e6;
+    border: 2px solid #d4a574;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+
+  .preset-btn:hover {
+    background: #d4a574;
+    color: white;
+  }
+
+  .start-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #6BCB77 0%, #4CAF50 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+  }
+
+  .start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  }
+
+  .start-btn:active {
+    transform: translateY(0);
+  }
+
+  .focus-active {
+    background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+  }
+
+  .focus-timer {
+    font-size: 48px;
+    font-weight: bold;
+    color: #2e7d32;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+  }
+
+  .focus-label {
+    font-size: 14px;
+    color: #5c4033;
+    margin-bottom: 10px;
+  }
+
+  .session-info {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 15px 0;
+    font-size: 12px;
+  }
+
+  .session-stat {
+    background: rgba(255,255,255,0.7);
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+
+  .control-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .control-btn {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #d4a574;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+
+  .pause-btn {
+    background: #fff4e6;
+    color: #5c4033;
+  }
+
+  .pause-btn:hover {
+    background: #FFD93D;
+  }
+
+  .stop-btn {
+    background: #ffcdd2;
+    color: #c62828;
+  }
+
+  .stop-btn:hover {
+    background: #ff6b6b;
+    color: white;
+  }
+
+  .break-active {
+    background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+  }
+
+  .break-timer {
+    font-size: 48px;
+    font-weight: bold;
+    color: #f57f17;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+  }
+
+  .skip-btn {
+    background: #d4a574;
+    color: white;
+  }
+
+  .skip-btn:hover {
+    background: #b8936f;
   }
 
   /* TIME TRAVEL STYLES */
@@ -357,6 +549,26 @@
     font-size: 48px;
     margin-bottom: 10px;
   }
+  .streak-badge {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+  color: white;
+  padding: 15px;
+  margin: 15px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.streak-number {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.streak-text {
+  font-size: 14px;
+  opacity: 0.9;
+}
   </style>
 </head>
 <body>
@@ -366,10 +578,18 @@
   
   <div class="tabs">
     <div class="tab active" data-tab="today">📅 Today</div>
+    <div class="tab" data-tab="focus">🎯 Focus</div>
     <div class="tab" data-tab="timetravel">⏰ Time Travel</div>
   </div>
 
   <div id="today-content" class="tab-content active"></div>
+  
+  <div id="focus-content" class="tab-content">
+    <div class="focus-container">
+      <div id="focus-view"></div>
+    </div>
+  </div>
+  
   <div id="timetravel-content" class="tab-content">
     <div class="time-travel-container">
       <div class="view-selector">

@@ -13,6 +13,10 @@ The goal of this project is to create a lightweight tool that helps users become
 - User can mark the website as study or procrastination. 
 - User can see the percentage of time spent on each website through the visualization of pie chart.
 - User can also see time of websites used in this month of week, User can also scroll through past months,weeks or days
+- User can also set the pomodoro focus session with break, and this focus session will be counted in the study time.
+- Leaderboard on who did work the most and who did procrastinate the most
+- Leaderboard to see who used the web the most
+- For top 10 websites, eg google or youtube etc, the leaderboard will show the top 10 users who used the top 10 websites the most. (these top 10 will be dynamically updated)
 - 
 
 ## Privacy First
