@@ -34,5 +34,5 @@ Everything stays on your machine.
 4. Click **Load unpacked** and select the folder where you cloned this repo.
 
 ## Future Enhancements
-- Add weekly/monthly reports.
 - well i want to make it so that user can track how much time they spend on work and on entertainment, but since it have a privacy first approach, i am not sure if i should add this feature :"|
+- Integrate with Focus sessions, and my new project STUDYFOCUS

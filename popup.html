@@ -5,7 +5,7 @@
   <title>Flavortown Tracker</title>
   <style>
   body {
-    width: 320px;
+    width: 400px;
     margin: 0;
     padding: 0;
     font-family: 'Comic Sans MS', 'Arial', sans-serif;
@@ -27,27 +27,6 @@
     color: #fff;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
   }
-      .cooking-box {
-      background: #fff4e6;
-      margin: 15px;
-      padding: 15px;
-      border-radius: 15px;
-      border: 3px solid #ffd699;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    
-    .cooking-emoji {
-      font-size: 32px;
-      margin-bottom: 5px;
-    }
-    
-    .cooking-time {
-      font-size: 20px;
-      font-weight: bold;
-      color: #d4721a;
-    }
-    
   
   .stats-row {
     display: flex;
@@ -134,8 +113,7 @@
     background: #ffcdd2;
     color: #c62828;
   }
-</style>
-<style>
+
   .tabs {
     display: flex;
     gap: 5px;
@@ -165,49 +143,221 @@
   .tab-content.active {
     display: block;
   }
+
   .chart-container {
-  margin: 15px;
-  padding: 20px;
-  background: rgba(255,255,255,0.6);
-  border-radius: 15px;
-  text-align: center;
-}
+    margin: 15px;
+    padding: 20px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 15px;
+    text-align: center;
+  }
 
-.pie-chart {
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 15px auto;
-}
+  .pie-chart {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 15px auto;
+  }
 
-.date-display {
-  font-size: 14px;
-  color: #5c4033;
-  margin: 10px 0;
-  font-weight: bold;
-}
+  .date-display {
+    font-size: 14px;
+    color: #5c4033;
+    margin: 10px 0;
+    font-weight: bold;
+  }
 
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-top: 15px;
-  font-size: 11px;
-}
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 11px;
+  }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
 
-.legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-}
-</style>
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
 
+  /* TIME TRAVEL STYLES */
+  .time-travel-container {
+    padding: 15px;
+  }
+
+  .view-selector {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .view-btn {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.8);
+    border: 2px solid #d4a574;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+
+  .view-btn:hover {
+    background: #fff4e6;
+  }
+
+  .view-btn.active {
+    background: #d4a574;
+    color: white;
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.8);
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .nav-btn {
+    background: #d4a574;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .nav-btn:hover {
+    background: #b8936f;
+  }
+
+  .month-year-display {
+    font-size: 16px;
+    font-weight: bold;
+    color: #5c4033;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    background: rgba(255,255,255,0.8);
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .calendar-day-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: #5c4033;
+    padding: 5px;
+  }
+
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .calendar-day:hover {
+    background: #fff4e6;
+    transform: scale(1.05);
+  }
+
+  .calendar-day.has-data {
+    background: #c8e6c9;
+    font-weight: bold;
+  }
+
+  .calendar-day.has-data::after {
+    content: '🍪';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 8px;
+  }
+
+  .calendar-day.selected {
+    background: #d4a574;
+    color: white;
+    font-weight: bold;
+  }
+
+  .calendar-day.other-month {
+    color: #ccc;
+    background: #f5f5f5;
+  }
+
+  .calendar-day.today {
+    border: 2px solid #ff6b6b;
+  }
+
+  .week-list, .month-list {
+    background: rgba(255,255,255,0.8);
+    padding: 12px;
+    border-radius: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .week-item, .month-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 4px solid #d4a574;
+  }
+
+  .week-item:hover, .month-item:hover {
+    background: #fff4e6;
+    transform: translateX(5px);
+  }
+
+  .week-item.selected, .month-item.selected {
+    background: #d4a574;
+    color: white;
+  }
+
+  .week-item.has-data::after, .month-item.has-data::after {
+    content: ' 🍪';
+  }
+
+  .no-data-message {
+    text-align: center;
+    padding: 30px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 12px;
+    margin: 15px;
+    color: #5c4033;
+  }
+
+  .no-data-message .emoji {
+    font-size: 48px;
+    margin-bottom: 10px;
+  }
+  </style>
 </head>
 <body>
   <div class="header">
@@ -215,16 +365,23 @@
   </div>
   
   <div class="tabs">
-  <div class="tab active" data-tab="today">Today</div>
-  <div class="tab" data-tab="week">This Week</div>
-  <div class="tab" data-tab="month">This Month</div>
-</div>
+    <div class="tab active" data-tab="today">📅 Today</div>
+    <div class="tab" data-tab="timetravel">⏰ Time Travel</div>
+  </div>
 
   <div id="today-content" class="tab-content active"></div>
-  <div id="week-content" class="tab-content"></div>
-  <div id="month-content" class="tab-content"></div>
+  <div id="timetravel-content" class="tab-content">
+    <div class="time-travel-container">
+      <div class="view-selector">
+        <button class="view-btn active" data-view="daily">📅 Daily</button>
+        <button class="view-btn" data-view="weekly">📊 Weekly</button>
+        <button class="view-btn" data-view="monthly">📈 Monthly</button>
+      </div>
+      <div id="timetravel-viewer"></div>
+      <div id="timetravel-stats"></div>
+    </div>
+  </div>
   
   <script src="popup.js"></script>
 </body>
 </html>
-
