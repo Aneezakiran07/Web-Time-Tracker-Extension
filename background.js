@@ -3,6 +3,10 @@ let startTime = null;
 let focusSessionActive = false;
 let focusTimerInterval = null;
 
+//in background.js, we have those functions that will run in the background
+//like the focus timer and the time tracking
+//we also have the chrome.storage.local.get and chrome.storage.local.set functions to save and retrieve data from the storage
+
 // Initialize focus state from storage on startup
 chrome.storage.local.get(['focusState'], (result) => {
   if (result.focusState && result.focusState.active) {
@@ -26,6 +30,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
+//starts new tracking when the user switches tabs or updates the url,
 function startNewTracking() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0] && tabs[0].url) {
@@ -40,6 +45,8 @@ function startNewTracking() {
     }
   });
 }
+
+//save the current time spent on cur site
 
 function saveCurrentTime() {
   console.log('saveCurrentTime called, currentSite:', currentSite, 'startTime:', startTime);
@@ -183,6 +190,7 @@ function startFocusTimer(state) {
   }, 1000);
 }
 
+//saves the focussession count for showing on stats page
 function saveFocusSessionCount(count) {
   const today = new Date().toISOString().split('T')[0];
   

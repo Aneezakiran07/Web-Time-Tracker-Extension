@@ -1,8 +1,11 @@
+//popup.js is for showing the popup window and handling the events in the popup window, and background.js is for handling 
+//the background events and storing the data in the chrome storage
 let contextMenu = null;
 let currentTab = 'today';
 let timeTravelView = 'daily'; // daily, weekly, monthly
 let selectedDate = new Date();
 let calendarMonth = new Date();
+let leaderboardView = 'thisweek'; // thisweek, achievements, comparison
 
 // Focus session state
 let focusState = {
@@ -19,6 +22,7 @@ let focusState = {
   sessionsUntilLongBreak: 4,
   timerInterval: null
 };
+
 
 // Load focus state from storage on popup open
 chrome.storage.local.get(['focusState', 'focusSessions'], (result) => {
@@ -66,14 +70,27 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById(currentTab + '-content').classList.add('active');
     
+    //load data for the selected tab
     if (currentTab === 'timetravel') {
       renderTimeTravel();
     } else if (currentTab === 'focus') {
       renderFocusSession();
+    } else if (currentTab === 'leaderboard') {
+      renderLeaderboard();
     } else {
       loadData();
     }
   });
+});
+
+// Leaderboard view switching
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('leaderboard-view-btn')) {
+    leaderboardView = e.target.dataset.view;
+    document.querySelectorAll('.leaderboard-view-btn').forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    renderLeaderboard();
+  }
 });
 
 // Time Travel view switching
@@ -86,6 +103,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
+//load data for the selected tab
 function loadData() {
   chrome.storage.local.get(['dailyData', 'categories'], (result) => {
     const dailyData = result.dailyData || {};
@@ -97,6 +115,402 @@ function loadData() {
   });
 }
 
+//render leaderboard (well the name says it :") )
+function renderLeaderboard() {
+  chrome.storage.local.get(['dailyData', 'weeklyData', 'monthlyData', 'categories', 'achievements', 'focusSessions'], (result) => {
+    const dailyData = result.dailyData || {};
+    const weeklyData = result.weeklyData || {};
+    const categories = result.categories || {};
+    const achievements = result.achievements || {};
+    const focusSessions = result.focusSessions || {};
+    
+
+    const content = document.getElementById('leaderboard-view');
+    
+    //one gotta browse for days to actually unlock their leaderboard :") 
+    if (Object.keys(dailyData).length === 0) {
+      content.innerHTML = `
+        <div class="no-data-message">
+          <div class="emoji">📊</div>
+          <div>Start browsing to unlock your personal leaderboard!</div>
+          <div style="margin-top: 10px; font-size: 12px;">Your stats will appear here as you use the web.</div>
+        </div>
+      `;
+      return;
+    }
+    
+    //three tabs from leaderboard!!! i think i should add renderthismonth also, will update in future :")
+    if (leaderboardView === 'thisweek') {
+      content.innerHTML = renderThisWeekLeaderboard(weeklyData, dailyData, categories);
+    } else if (leaderboardView === 'achievements') {
+      content.innerHTML = renderAchievements(achievements, focusSessions);
+    } else if (leaderboardView === 'comparison') {
+      content.innerHTML = renderComparison(weeklyData, categories);
+    }
+  });
+}
+
+//SHOW this week leaderboard, leaderboard will show what sites you used the most 
+//since i have not added any database to store the data,it will just be your personal leaderboard and not a global leaderboard
+function renderThisWeekLeaderboard(weeklyData, dailyData, categories) {
+  const today = new Date();
+  const thisWeekKey = getWeekKey(today);
+  const lastWeek = new Date(today);
+  lastWeek.setDate(today.getDate() - 7);
+  const lastWeekKey = getWeekKey(lastWeek);
+  
+  const thisWeekData = weeklyData[thisWeekKey] || { sites: {} };
+  const lastWeekData = weeklyData[lastWeekKey] || { sites: {} };
+  
+  // Get top 10 sites this week
+  const sortedSites = Object.entries(thisWeekData.sites || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+  
+  let html = '<div class="leaderboard-section">';
+  html += '<div class="section-title">🏆 Your Top 10 Sites This Week</div>';
+  
+  if (sortedSites.length === 0) {
+    html += '<div style="text-align: center; padding: 20px; color: #5c4033;">No browsing data this week yet!</div>';
+  } else {
+    sortedSites.forEach(([site, seconds], index) => {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const timeStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+      
+      // logic for calculating trend compared to last week
+      //it calculates the difference between the time spent on a site this week and last week so we can put it in comparision tab
+      const lastWeekSeconds = lastWeekData.sites?.[site] || 0;
+      const diff = seconds - lastWeekSeconds;
+      const diffHours = Math.floor(Math.abs(diff) / 3600);
+      const diffMinutes = Math.floor((Math.abs(diff) % 3600) / 60);
+      const diffStr = diffHours > 0 ? `${diffHours}h ${diffMinutes}m` : `${diffMinutes}m`;
+      
+      let trend = '';
+      if (diff > 300) { // More than 5 minutes difference
+        trend = `<span class="trend trend-up">↑ ${diffStr} more</span>`;
+      } else if (diff < -300) {
+        trend = `<span class="trend trend-down">↓ ${diffStr} less</span>`;
+      } else {
+        trend = '<span class="trend trend-same">≈ similar</span>';
+      }
+      
+      const category = categories[site];
+      const categoryEmoji = category === 'study' ? '📚' : category === 'entertainment' ? '🎮' : '🌐';
+      
+      const percentage = (seconds / Object.values(thisWeekData.sites).reduce((a, b) => a + b, 0)) * 100;
+      
+      html += `
+        <div class="leaderboard-item rank-${index + 1}">
+          <div class="rank-badge">${index + 1}</div>
+          <div class="site-info">
+            <div class="site-name">${categoryEmoji} ${site}</div>
+            <div class="site-stats">
+              <span class="time-badge">${timeStr}</span>
+              ${trend}
+            </div>
+          </div>
+          <div class="time-bar-container">
+            <div class="time-bar" style="width: ${percentage}%"></div>
+          </div>
+        </div>
+      `;
+    });
+  }
+// Category champions, to show the site you visited freq and used the most in study or in entertainment
+html += '</div><div class="leaderboard-section">';
+html += '<div class="section-title">🎯 Category Champions</div>';
+
+const studySites = {};
+const entertainmentSites = {};
+let mostFrequent = { site: null, count: 0 };
+
+for (const [site, seconds] of Object.entries(thisWeekData.sites || {})) {
+  if (categories[site] === 'study') {
+    studySites[site] = seconds;
+  } else if (categories[site] === 'entertainment') {
+    entertainmentSites[site] = seconds;
+  }
+}
+
+// find out freq of each site(how much times you visited this site)
+const siteVisits = {};
+for (const [date, data] of Object.entries(dailyData)) {
+  if (date >= thisWeekKey) {
+    for (const site of Object.keys(data.sites || {})) {
+      siteVisits[site] = (siteVisits[site] || 0) + 1;
+    }
+  }
+}
+
+for (const [site, count] of Object.entries(siteVisits)) {
+  if (count > mostFrequent.count) {
+    mostFrequent = { site, count };
+  }
+}
+
+const topStudy = Object.entries(studySites).sort((a, b) => b[1] - a[1])[0];
+const topEntertainment = Object.entries(entertainmentSites).sort((a, b) => b[1] - a[1])[0];
+
+// Find top site overall (regardless of category)
+const topSiteOverall = sortedSites.length > 0 ? sortedSites[0] : null;
+
+html += '<div class="category-champions">';
+
+//logic for showing cards for the top study, entertainment and so on :") 
+if (topStudy) {
+  const hours = Math.floor(topStudy[1] / 3600);
+  const minutes = Math.floor((topStudy[1] % 3600) / 60);
+  html += `
+    <div class="champion-card study-champion">
+      <div class="champion-emoji">📚</div>
+      <div class="champion-title">Top Study Site</div>
+      <div class="champion-site">${topStudy[0]}</div>
+      <div class="champion-time">${hours}h ${minutes}m this week</div>
+    </div>
+  `;
+}
+
+if (topEntertainment) {
+  const hours = Math.floor(topEntertainment[1] / 3600);
+  const minutes = Math.floor((topEntertainment[1] % 3600) / 60);
+  html += `
+    <div class="champion-card entertainment-champion">
+      <div class="champion-emoji">🎮</div>
+      <div class="champion-title">Top Entertainment Site</div>
+      <div class="champion-site">${topEntertainment[0]}</div>
+      <div class="champion-time">${hours}h ${minutes}m this week</div>
+    </div>
+  `;
+}
+
+if (mostFrequent.site) {
+  html += `
+    <div class="champion-card frequent-champion">
+      <div class="champion-emoji">🔄</div>
+      <div class="champion-title">Most Frequent</div>
+      <div class="champion-site">${mostFrequent.site}</div>
+      <div class="champion-time">Visited ${mostFrequent.count} days</div>
+    </div>
+  `;
+}
+
+if (topSiteOverall) {
+  const hours = Math.floor(topSiteOverall[1] / 3600);
+  const minutes = Math.floor((topSiteOverall[1] % 3600) / 60);
+  html += `
+    <div class="champion-card overall-champion">
+      <div class="champion-emoji">👑</div>
+      <div class="champion-title">Top Site Overall</div>
+      <div class="champion-site">${topSiteOverall[0]}</div>
+      <div class="champion-time">${hours}h ${minutes}m this week</div>
+    </div>
+  `;
+}
+
+html += '</div></div>';
+  return html;
+}
+
+
+function renderAchievements(achievements, focusSessions) {
+  const streakFire = achievements.currentStudyStreak >= 7 ? '🔥🔥🔥' : 
+                     achievements.currentStudyStreak >= 3 ? '🔥🔥' : 
+                     achievements.currentStudyStreak >= 1 ? '🔥' : '💤';
+  
+  let html = '<div class="leaderboard-section">';
+  html += '<div class="section-title">🏆 Your Personal Bests</div>';
+  
+  html += '<div class="achievement-grid">';
+  
+  // Current streak
+  html += `
+    <div class="achievement-card ${achievements.currentStudyStreak > 0 ? 'achievement-active' : ''}">
+      <div class="achievement-icon">${streakFire}</div>
+      <div class="achievement-name">Current Streak</div>
+      <div class="achievement-value">${achievements.currentStudyStreak} day${achievements.currentStudyStreak !== 1 ? 's' : ''}</div>
+      ${achievements.currentStudyStreak > 0 ? '<div class="achievement-msg">Don\'t break the chain!</div>' : '<div class="achievement-msg">Study 2+ hours to start</div>'}
+    </div>
+  `;
+  
+  // Longest streak
+  html += `
+    <div class="achievement-card">
+      <div class="achievement-icon">📅</div>
+      <div class="achievement-name">Longest Streak</div>
+      <div class="achievement-value">${achievements.longestStudyStreak} day${achievements.longestStudyStreak !== 1 ? 's' : ''}</div>
+      <div class="achievement-msg">Your best run ever</div>
+    </div>
+  `;
+  
+  // Best study day
+  if (achievements.bestStudyDay?.date) {
+    const date = new Date(achievements.bestStudyDay.date);
+    const hours = Math.floor(achievements.bestStudyDay.minutes / 60);
+    const minutes = achievements.bestStudyDay.minutes % 60;
+    html += `
+      <div class="achievement-card">
+        <div class="achievement-icon">📚</div>
+        <div class="achievement-name">Best Study Day</div>
+        <div class="achievement-value">${hours}h ${minutes}m</div>
+        <div class="achievement-msg">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+      </div>
+    `;
+  }
+  
+  // Longest focus session
+  if (achievements.longestFocusSession > 0) {
+    const hours = Math.floor(achievements.longestFocusSession / 60);
+    const minutes = achievements.longestFocusSession % 60;
+    html += `
+      <div class="achievement-card">
+        <div class="achievement-icon">⏱️</div>
+        <div class="achievement-name">Longest Focus</div>
+        <div class="achievement-value">${hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`}</div>
+        <div class="achievement-msg">Single session record</div>
+      </div>
+    `;
+  }
+  
+  // Total study time
+  const totalHours = Math.floor(achievements.totalStudyTime / 60);
+  html += `
+    <div class="achievement-card">
+      <div class="achievement-icon">💪</div>
+      <div class="achievement-name">Total Study Time</div>
+      <div class="achievement-value">${totalHours}h</div>
+      <div class="achievement-msg">All time</div>
+    </div>
+  `;
+  
+  // Total focus sessions
+  html += `
+    <div class="achievement-card">
+      <div class="achievement-icon">🎯</div>
+      <div class="achievement-name">Focus Sessions</div>
+      <div class="achievement-value">${achievements.totalFocusSessions}</div>
+      <div class="achievement-msg">Completed</div>
+    </div>
+  `;
+  
+  html += '</div>';
+  
+  // Badges section
+  if (achievements.badges && achievements.badges.length > 0) {
+    html += '<div class="section-title" style="margin-top: 20px;">🎖️ Badges Earned</div>';
+    html += '<div class="badge-grid">';
+    
+    achievements.badges.forEach(badge => {
+      html += `
+        <div class="badge-card">
+          <div class="badge-emoji">${badge.emoji}</div>
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-desc">${badge.desc}</div>
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  
+  return html;
+}
+
+//function to show the comparison bw this week and last week , (will add more functionalities in comparision tab)
+function renderComparison(weeklyData, categories) {
+  const today = new Date();
+  const thisWeekKey = getWeekKey(today);
+  const lastWeek = new Date(today);
+  lastWeek.setDate(today.getDate() - 7);
+  const lastWeekKey = getWeekKey(lastWeek);
+  
+  const thisWeekData = weeklyData[thisWeekKey] || { study: 0, entertainment: 0, total: 0, sites: {} };
+  const lastWeekData = weeklyData[lastWeekKey] || { study: 0, entertainment: 0, total: 0, sites: {} };
+  
+  let html = '<div class="leaderboard-section">';
+  html += '<div class="section-title">📊 This Week vs Last Week</div>';
+  
+  html += '<div class="comparison-grid">';
+  
+  // Study time comparison
+  const studyDiff = thisWeekData.study - lastWeekData.study;
+  const studyPercent = lastWeekData.study > 0 ? ((studyDiff / lastWeekData.study) * 100).toFixed(0) : 0;
+  const studyTrend = studyDiff > 0 ? '📈' : studyDiff < 0 ? '📉' : '➡️';
+  
+  html += `
+    <div class="comparison-card ${studyDiff > 0 ? 'positive' : studyDiff < 0 ? 'negative' : 'neutral'}">
+      <div class="comparison-label">📚 Study Time</div>
+      <div class="comparison-values">
+        <span class="old-value">${Math.floor(lastWeekData.study / 60)}m</span>
+        <span class="arrow">→</span>
+        <span class="new-value">${Math.floor(thisWeekData.study / 60)}m</span>
+      </div>
+      <div class="comparison-change">
+        ${studyTrend} ${Math.abs(studyPercent)}% ${studyDiff >= 0 ? 'increase' : 'decrease'}
+      </div>
+    </div>
+  `;
+  
+  // Entertainment time comparison
+  const entDiff = thisWeekData.entertainment - lastWeekData.entertainment;
+  const entPercent = lastWeekData.entertainment > 0 ? ((entDiff / lastWeekData.entertainment) * 100).toFixed(0) : 0;
+  const entTrend = entDiff < 0 ? '🎉' : entDiff > 0 ? '⚠️' : '➡️';
+  
+  html += `
+    <div class="comparison-card ${entDiff < 0 ? 'positive' : entDiff > 0 ? 'negative' : 'neutral'}">
+      <div class="comparison-label">🎮 Procrastination</div>
+      <div class="comparison-values">
+        <span class="old-value">${Math.floor(lastWeekData.entertainment / 60)}m</span>
+        <span class="arrow">→</span>
+        <span class="new-value">${Math.floor(thisWeekData.entertainment / 60)}m</span>
+      </div>
+      <div class="comparison-change">
+        ${entTrend} ${Math.abs(entPercent)}% ${entDiff >= 0 ? 'increase' : 'decrease'}
+      </div>
+    </div>
+  `;
+  
+  html += '</div>';
+  
+  // Most improved sites
+  html += '<div class="section-title" style="margin-top: 20px;">⭐ Most Improved</div>';
+  
+  const improvements = [];
+  for (const [site, thisWeekTime] of Object.entries(thisWeekData.sites || {})) {
+    const lastWeekTime = lastWeekData.sites?.[site] || 0;
+    const diff = lastWeekTime - thisWeekTime; // Positive = spent less time
+    if (diff > 300 && categories[site] === 'entertainment') { // Reduced entertainment by 5+ minutes
+      improvements.push({ site, diff, type: 'reduced' });
+    }
+  }
+  
+  improvements.sort((a, b) => b.diff - a.diff);
+  
+  if (improvements.length > 0) {
+    html += '<div class="improvement-list">';
+    improvements.slice(0, 3).forEach(item => {
+      const hours = Math.floor(item.diff / 3600);
+      const minutes = Math.floor((item.diff % 3600) / 60);
+      html += `
+        <div class="improvement-item">
+          <span class="improvement-icon">🎯</span>
+          <span>Reduced <strong>${item.site}</strong> by ${hours > 0 ? `${hours}h ` : ''}${minutes}m</span>
+        </div>
+      `;
+    });
+    html += '</div>';
+  } else {
+    html += '<div style="text-align: center; padding: 15px; color: #5c4033;">Keep going! Improvements will show here.</div>';
+  }
+  
+  html += '</div>';
+  
+  return html;
+}
+
+// Function to render today's stats(how much time you have spent on each )
 function renderToday(dailyData, categories) {
   const today = new Date().toISOString().split('T')[0];
   const data = dailyData[today] || { cooking: 0, sites: {} };
@@ -138,11 +552,13 @@ function renderToday(dailyData, categories) {
 }
 
 function renderWeek(weeklyData, categories) {
-  // Removed - now handled by Time Travel tab
+  //this is being handled by renderTimeTravel
+  //keeping it here incase gonna need to make it in future
 }
 
 function renderMonth(monthlyData, categories) {
-  // Removed - now handled by Time Travel tab
+  //this is being handled by renderTimeTravel
+  //keeping it here incase gonna need to make it in future
 }
 
 // ============ TIME TRAVEL FUNCTIONS ============
@@ -154,6 +570,7 @@ function renderTimeTravel() {
     const monthlyData = result.monthlyData || {};
     const categories = result.categories || {};
     
+    // Determine which time travel view to show
     if (timeTravelView === 'daily') {
       renderDailyCalendar(dailyData, categories);
     } else if (timeTravelView === 'weekly') {
@@ -420,7 +837,6 @@ function renderFocusSession() {
         focusState.completedToday = result.focusSessions[today].count || 0;
       }
     }
-    
     if (!focusState.active) {
       renderFocusSetup();
     } else if (focusState.isBreak) {
@@ -790,8 +1206,16 @@ function addPieChartListeners() {
     slice.addEventListener('click', () => {
       const site = slice.dataset.site;
       const percentage = slice.dataset.percentage;
-      document.getElementById('chartLabel').textContent = `${percentage}%`;
-      document.getElementById('chartSite').textContent = site;
+      
+      // Find the chart container that contains this slice
+      const chartContainer = slice.closest('.chart-container');
+      if (chartContainer) {
+        const labelElement = chartContainer.querySelector('#chartLabel');
+        const siteElement = chartContainer.querySelector('#chartSite');
+        
+        if (labelElement) labelElement.textContent = `${percentage}%`;
+        if (siteElement) siteElement.textContent = site;
+      }
     });
   });
 }
@@ -923,6 +1347,7 @@ function createPieChart(timeData, period = 'today', customLabel = null) {
     const angle = (seconds / total) * 360;
     const endAngle = currentAngle + angle;
     
+    //logic for showing the pie chart
     const x1 = 100 + 90 * Math.cos((currentAngle - 90) * Math.PI / 180);
     const y1 = 100 + 90 * Math.sin((currentAngle - 90) * Math.PI / 180);
     const x2 = 100 + 90 * Math.cos((endAngle - 90) * Math.PI / 180);
@@ -970,5 +1395,6 @@ function createPieChart(timeData, period = 'today', customLabel = null) {
   `;
 }
 
+broooo
 // Initial load
 loadData();

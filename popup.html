@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -569,6 +570,375 @@
   font-size: 14px;
   opacity: 0.9;
 }
+/* ============ LEADERBOARD STYLES ============ */
+
+.leaderboard-container {
+  padding: 15px;
+}
+
+.leaderboard-view-btn {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.8);
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.leaderboard-view-btn:hover {
+  background: #fff4e6;
+}
+
+.leaderboard-view-btn.active {
+  background: #d4a574;
+  color: white;
+}
+
+.leaderboard-section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #5c4033;
+  margin-bottom: 12px;
+  text-align: center;
+  padding: 10px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 10px;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin: 8px 0;
+  background: #fff;
+  border-radius: 12px;
+  border-left: 5px solid #d4a574;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.leaderboard-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.leaderboard-item.rank-1 {
+  border-left-color: #FFD700;
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFECB3 100%);
+}
+
+.leaderboard-item.rank-2 {
+  border-left-color: #C0C0C0;
+  background: linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%);
+}
+
+.leaderboard-item.rank-3 {
+  border-left-color: #CD7F32;
+  background: linear-gradient(135deg, #FFE5CC 0%, #FFCCB3 100%);
+}
+
+.rank-badge {
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #d4a574 0%, #b8936f 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.rank-1 .rank-badge {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  font-size: 16px;
+}
+
+.rank-2 .rank-badge {
+  background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
+}
+
+.rank-3 .rank-badge {
+  background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+}
+
+.site-info {
+  flex: 1;
+}
+
+.site-name {
+  font-weight: bold;
+  font-size: 13px;
+  color: #5c4033;
+  margin-bottom: 4px;
+}
+
+.site-stats {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.time-badge {
+  background: #fff4e6;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #d4721a;
+}
+
+.trend {
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 10px;
+}
+
+.trend-up {
+  background: #ffcdd2;
+  color: #c62828;
+}
+
+.trend-down {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+.trend-same {
+  background: #e0e0e0;
+  color: #616161;
+}
+
+.time-bar-container {
+  width: 60px;
+  height: 8px;
+  background: rgba(212,165,116,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.time-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #d4a574 0%, #b8936f 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Category Champions */
+.category-champions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.champion-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  border: 3px solid #d4a574;
+  transition: all 0.2s;
+}
+
+.champion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.study-champion {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+}
+
+.entertainment-champion {
+  border-color: #FFA726;
+  background: linear-gradient(
+  135deg, #FFF3E0 0%, #FFE0B2 100%);
+}
+.frequent-champion {
+  border-color: #42A5F5;
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+}
+.champion-emoji {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+.champion-title {
+  font-size: 11px;
+  color: #5c4033;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.champion-site {
+  font-size: 13px;
+  font-weight: bold;
+  color: #5c4033;
+  margin-bottom: 5px;
+}
+.champion-time {
+  font-size: 12px;
+  color: #d4721a;
+}
+/* Achievement Cards */
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.achievement-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  border: 3px solid #e0e0e0;
+  transition: all 0.2s;
+}
+.achievement-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.achievement-active {
+  border-color: #FF6B6B;
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+.achievement-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+.achievement-name {
+  font-size: 11px;
+  color: #5c4033;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.achievement-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #d4721a;
+  margin-bottom: 5px;
+}
+.achievement-msg {
+  font-size: 10px;
+  color: #8d6e63;
+}
+/* Badges */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+.badge-card {
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFE082 100%);
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  border: 2px solid #FFD54F;
+  transition: all 0.2s;
+}
+.badge-card:hover {
+  transform: rotate(5deg) scale(1.1);
+}
+.badge-emoji {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+.badge-name {
+  font-size: 11px;
+  font-weight: bold;
+  color: #5c4033;
+  margin-bottom: 3px;
+}
+.badge-desc {
+  font-size: 9px;
+  color: #8d6e63;
+}
+/* Comparison Cards */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.comparison-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  border: 3px solid #e0e0e0;
+}
+.comparison-card.positive {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+}
+.comparison-card.negative {
+  border-color: #FF6B6B;
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+}
+.comparison-card.neutral {
+  border-color: #9E9E9E;
+  background: linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%);
+}
+.comparison-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #5c4033;
+  margin-bottom: 10px;
+}
+.comparison-values {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.old-value {
+  font-size: 16px;
+  color: #9E9E9E;
+  text-decoration: line-through;
+}
+.new-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #d4721a;
+}
+.arrow {
+  color: #9E9E9E;
+}
+.comparison-change {
+  font-size: 11px;
+  font-weight: bold;
+}
+.improvement-list {
+  background: rgba(255,255,255,0.6);
+  padding: 12px;
+  border-radius: 12px;
+}
+.improvement-item {
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.improvement-icon {
+  font-size: 20px;
+}
+
   </style>
 </head>
 <body>
@@ -576,13 +946,26 @@
     <h1>🍳 Flavortown Timer</h1>
   </div>
   
+<!-- i hate adding comment in html ,anyways
+ this is tabs section to show  !-->
   <div class="tabs">
-    <div class="tab active" data-tab="today">📅 Today</div>
-    <div class="tab" data-tab="focus">🎯 Focus</div>
-    <div class="tab" data-tab="timetravel">⏰ Time Travel</div>
-  </div>
+  <div class="tab active" data-tab="today">📅 Today</div>
+  <div class="tab" data-tab="leaderboard">🏆 Stats</div>
+  <div class="tab" data-tab="focus">🎯 Focus</div>
+  <div class="tab" data-tab="timetravel">⏰ History</div>
+</div>
 
   <div id="today-content" class="tab-content active"></div>
+  <div id="leaderboard-content" class="tab-content">
+  <div class="leaderboard-container">
+    <div class="view-selector">
+      <button class="leaderboard-view-btn active" data-view="thisweek">📊 This Week</button>
+      <button class="leaderboard-view-btn" data-view="achievements">🏆 Records</button>
+      <button class="leaderboard-view-btn" data-view="comparison">📈 Compare</button>
+    </div>
+    <div id="leaderboard-view"></div>
+  </div>
+</div>
   
   <div id="focus-content" class="tab-content">
     <div class="focus-container">
