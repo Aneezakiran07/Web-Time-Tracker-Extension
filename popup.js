@@ -7,6 +7,20 @@ let selectedDate = new Date();
 let calendarMonth = new Date();
 let leaderboardView = 'thisweek'; // thisweek, achievements, comparison
 
+// Helper function to safely set HTML content
+function setHTML(element, htmlString) {
+  // Clear existing content
+  element.textContent = '';
+  
+  // Use DOMParser instead of innerHTML
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  
+  // Move all children from parsed document to target element
+  while (doc.body.firstChild) {
+    element.appendChild(doc.body.firstChild);
+  }
+}
 // Focus session state
 let focusState = {
   active: false,
@@ -129,24 +143,24 @@ function renderLeaderboard() {
     
     //one gotta browse for days to actually unlock their leaderboard :") 
     if (Object.keys(dailyData).length === 0) {
-      content.innerHTML = `
-        <div class="no-data-message">
-          <div class="emoji">📊</div>
-          <div>Start browsing to unlock your personal leaderboard!</div>
-          <div style="margin-top: 10px; font-size: 12px;">Your stats will appear here as you use the web.</div>
-        </div>
-      `;
-      return;
-    }
-    
+  const html = `
+    <div class="no-data-message">
+      <div class="emoji">📊</div>
+      <div>Start browsing to unlock your personal leaderboard!</div>
+      <div style="margin-top: 10px; font-size: 12px;">Your stats will appear here as you use the web.</div>
+    </div>
+  `;
+  setHTML(content, html);
+  return;
+}
     //three tabs from leaderboard!!! i think i should add renderthismonth also, will update in future :")
     if (leaderboardView === 'thisweek') {
-      content.innerHTML = renderThisWeekLeaderboard(weeklyData, dailyData, categories);
-    } else if (leaderboardView === 'achievements') {
-      content.innerHTML = renderAchievements(achievements, focusSessions);
-    } else if (leaderboardView === 'comparison') {
-      content.innerHTML = renderComparison(weeklyData, categories);
-    }
+  setHTML(content, renderThisWeekLeaderboard(weeklyData, dailyData, categories));
+} else if (leaderboardView === 'achievements') {
+  setHTML(content, renderAchievements(achievements, focusSessions));
+} else if (leaderboardView === 'comparison') {
+  setHTML(content, renderComparison(weeklyData, categories));
+}
   });
 }
 
@@ -312,7 +326,7 @@ html += '</div></div>';
   return html;
 }
 
-
+//funny 💤 emojie that will show up if u have procrastinated
 function renderAchievements(achievements, focusSessions) {
   const streakFire = achievements.currentStudyStreak >= 7 ? '🔥🔥🔥' : 
                      achievements.currentStudyStreak >= 3 ? '🔥🔥' : 
@@ -545,7 +559,9 @@ function renderToday(dailyData, categories) {
     html += createPieChart(data.sites);
     html += createSitesList(data.sites, categories, true);
     
-    document.getElementById('today-content').innerHTML = html;
+    const todayContent = document.getElementById('today-content');
+  setHTML(todayContent, html);
+    
     addPieChartListeners();
     addContextMenuListeners();
   });
@@ -635,7 +651,8 @@ function renderDailyCalendar(dailyData, categories) {
   }
   
   html += '</div>';
-  viewer.innerHTML = html;
+  
+setHTML(viewer, html);
   
   // Add event listeners
   document.getElementById('prevMonth').addEventListener('click', () => {
@@ -665,8 +682,24 @@ function renderWeeklyList(weeklyData, categories) {
   const weeks = Object.keys(weeklyData).sort().reverse();
   
   if (weeks.length === 0) {
-    viewer.innerHTML = '<div class="no-data-message"><div class="emoji">📅</div><div>No weekly data yet! Start browsing to collect data.</div></div>';
-    document.getElementById('timetravel-stats').innerHTML = '';
+    // Clear existing content
+viewer.textContent = '';
+document.getElementById('timetravel-stats').textContent = '';
+
+// Create the no-data message safely
+const noDataDiv = document.createElement('div');
+noDataDiv.className = 'no-data-message';
+
+const emojiDiv = document.createElement('div');
+emojiDiv.className = 'emoji';
+emojiDiv.textContent = '📅';
+
+const messageDiv = document.createElement('div');
+messageDiv.textContent = 'No weekly data yet! Start browsing to collect data.';
+
+noDataDiv.appendChild(emojiDiv);
+noDataDiv.appendChild(messageDiv);
+viewer.appendChild(noDataDiv);
     return;
   }
   
@@ -685,7 +718,7 @@ function renderWeeklyList(weeklyData, categories) {
   });
   html += '</div>';
   
-  viewer.innerHTML = html;
+  setHTML(viewer, html);
   
   document.querySelectorAll('.week-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -705,8 +738,24 @@ function renderMonthlyList(monthlyData, categories) {
   const months = Object.keys(monthlyData).sort().reverse();
   
   if (months.length === 0) {
-    viewer.innerHTML = '<div class="no-data-message"><div class="emoji">📊</div><div>No monthly data yet! Start browsing to collect data.</div></div>';
-    document.getElementById('timetravel-stats').innerHTML = '';
+    // Clear existing content
+viewer.textContent = '';
+document.getElementById('timetravel-stats').textContent = '';
+
+// Create the no-data message safely
+const noDataDiv = document.createElement('div');
+noDataDiv.className = 'no-data-message';
+
+const emojiDiv = document.createElement('div');
+emojiDiv.className = 'emoji';
+emojiDiv.textContent = '📊';
+
+const messageDiv = document.createElement('div');
+messageDiv.textContent = 'No monthly data yet! Start browsing to collect data.';
+
+noDataDiv.appendChild(emojiDiv);
+noDataDiv.appendChild(messageDiv);
+viewer.appendChild(noDataDiv);
     return;
   }
   
@@ -723,7 +772,7 @@ function renderMonthlyList(monthlyData, categories) {
   });
   html += '</div>';
   
-  viewer.innerHTML = html;
+  setHTML(viewer, html);
   
   document.querySelectorAll('.month-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -743,7 +792,7 @@ function renderTimeTravelStats(data, categories, dateKey, type = 'day') {
   const statsDiv = document.getElementById('timetravel-stats');
   
   if (!data || Object.keys(data.sites || {}).length === 0) {
-    statsDiv.innerHTML = '<div class="no-data-message"><div class="emoji">🍪</div><div>No data for this period!</div></div>';
+     setHTML(statsDiv,'<div class="no-data-message"><div class="emoji">🍪</div><div>No data for this period!</div></div>');
     return;
   }
   
@@ -806,7 +855,7 @@ function renderTimeTravelStats(data, categories, dateKey, type = 'day') {
                  createPieChart(data.sites, type, dateLabel) +
                  createSitesList(data.sites, categories, true);
     
-    statsDiv.innerHTML = html;
+    setHTML(statsDiv, html);
     addPieChartListeners();
     addContextMenuListeners();
   });
@@ -840,13 +889,14 @@ function renderFocusSession() {
     if (!focusState.active) {
       renderFocusSetup();
     } else if (focusState.isBreak) {
-      view.innerHTML = renderBreakScreen();
+      setHTML(view, renderBreakScreen());
       addBreakListeners();
       if (!focusState.paused) {
         startUITimer();
       }
     } else {
-      view.innerHTML = renderFocusActive();
+      // and
+setHTML(view, renderFocusActive());
       addFocusActiveListeners();
       if (!focusState.paused) {
         startUITimer();
@@ -938,7 +988,9 @@ function renderFocusSetup() {
       </div>
     `;
     
-    document.getElementById('focus-view').innerHTML = setupHTML;
+    const focusView = document.getElementById('focus-view');
+    setHTML(focusView, setupHTML);
+
     addFocusSetupListeners();
   });
 }
@@ -1171,7 +1223,7 @@ function notifyBackground(action) {
   // This function is no longer used, keeping for compatibility
 }
 
-function playNotificationSound() {
+function playNotificationSound(type = 'default') {
   try {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
@@ -1180,17 +1232,53 @@ function playNotificationSound() {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    gainNode.gain.value = 0.3;
-    
-    oscillator.start();
-    setTimeout(() => oscillator.stop(), 200);
+    // Different sounds for different events
+    if (type === 'focus-complete') {
+      // Celebratory sound - higher pitch, longer
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      gainNode.gain.value = 0.3;
+      
+      // Play 3 ascending beeps
+      oscillator.start();
+      setTimeout(() => {
+        oscillator.frequency.value = 900;
+      }, 100);
+      setTimeout(() => {
+        oscillator.frequency.value = 1000;
+      }, 200);
+      setTimeout(() => oscillator.stop(), 400);
+      
+    } else if (type === 'break-complete') {
+      // Gentle reminder - lower pitch
+      oscillator.frequency.value = 600;
+      oscillator.type = 'sine';
+      gainNode.gain.value = 0.3;
+      
+      // Play 2 beeps
+      oscillator.start();
+      setTimeout(() => oscillator.stop(), 200);
+      setTimeout(() => {
+        const osc2 = audioContext.createOscillator();
+        osc2.connect(gainNode);
+        osc2.frequency.value = 600;
+        osc2.type = 'sine';
+        osc2.start();
+        setTimeout(() => osc2.stop(), 200);
+      }, 300);
+      
+    } else {
+      // Default single beep
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      gainNode.gain.value = 0.3;
+      oscillator.start();
+      setTimeout(() => oscillator.stop(), 200);
+    }
   } catch (e) {
     console.log('Audio notification not available');
   }
 }
-
 // ============ SHARED FUNCTIONS ============
 
 function addPieChartListeners() {
@@ -1293,11 +1381,11 @@ function showContextMenu(e, site) {
   contextMenu.style.left = e.pageX + 'px';
   contextMenu.style.top = e.pageY + 'px';
   
-  contextMenu.innerHTML = `
+  setHTML(contextMenu, `
     <div data-category="study">📚 Mark as Study</div>
     <div data-category="entertainment">🎮 Mark as Entertainment</div>
     <div data-category="none">❌ Remove Category</div>
-  `;
+  `);
   
   document.body.appendChild(contextMenu);
   
@@ -1395,6 +1483,6 @@ function createPieChart(timeData, period = 'today', customLabel = null) {
   `;
 }
 
-broooo
 // Initial load
 loadData();
+

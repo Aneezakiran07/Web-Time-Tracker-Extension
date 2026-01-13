@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Flavortown Tracker</title>
+  <title>Sizzle: Focus & Habit Time Tracker</title>
   <style>
   body {
     width: 400px;
@@ -943,33 +943,34 @@
 </head>
 <body>
   <div class="header">
-    <h1>🍳 Flavortown Timer</h1>
+    <h1>🍳 Sizzle: Focus & Habit Time Tracker</h1>
   </div>
   
-<!-- i hate adding comment in html ,anyways
- this is tabs section to show  !-->
   <div class="tabs">
-  <div class="tab active" data-tab="today">📅 Today</div>
-  <div class="tab" data-tab="leaderboard">🏆 Stats</div>
-  <div class="tab" data-tab="focus">🎯 Focus</div>
-  <div class="tab" data-tab="timetravel">⏰ History</div>
-</div>
-
-  <div id="today-content" class="tab-content active"></div>
-  <div id="leaderboard-content" class="tab-content">
-  <div class="leaderboard-container">
-    <div class="view-selector">
-      <button class="leaderboard-view-btn active" data-view="thisweek">📊 This Week</button>
-      <button class="leaderboard-view-btn" data-view="achievements">🏆 Records</button>
-      <button class="leaderboard-view-btn" data-view="comparison">📈 Compare</button>
-    </div>
-    <div id="leaderboard-view"></div>
+    <div class="tab active" data-tab="today">📅 Today</div>
+    <div class="tab" data-tab="focus">⚡ Power Sizzle</div>
+    <div class="tab" data-tab="leaderboard">🌶️ Hottest Streaks</div>
+    <div class="tab" data-tab="timetravel">⏰ Time Travel</div>
   </div>
-</div>
+
+  <div id="today-content" class="tab-content active">
+    </div>
+
+  <div id="leaderboard-content" class="tab-content">
+    <div class="leaderboard-container">
+      <div class="view-selector">
+        <button class="leaderboard-view-btn active" data-view="thisweek">📊 Weekly Heat</button>
+        <button class="leaderboard-view-btn" data-view="achievements">🏆 Records</button>
+        <button class="leaderboard-view-btn" data-view="comparison">📈 Compare</button>
+      </div>
+      <div id="leaderboard-view"></div>
+    </div>
+  </div>
   
   <div id="focus-content" class="tab-content">
     <div class="focus-container">
-      <div id="focus-view"></div>
+      <div id="focus-view">
+        </div>
     </div>
   </div>
   
@@ -984,7 +985,6 @@
       <div id="timetravel-stats"></div>
     </div>
   </div>
-  
   <script src="popup.js"></script>
 </body>
 </html>

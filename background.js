@@ -3,12 +3,15 @@ let startTime = null;
 let focusSessionActive = false;
 let focusTimerInterval = null;
 
+// Browser API compatibility (works for both Chrome and Firefox)
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 //in background.js, we have those functions that will run in the background
 //like the focus timer and the time tracking
-//we also have the chrome.storage.local.get and chrome.storage.local.set functions to save and retrieve data from the storage
+//we also have the storage.local.get and storage.local.set functions to save and retrieve data from the storage
 
 // Initialize focus state from storage on startup
-chrome.storage.local.get(['focusState'], (result) => {
+browserAPI.storage.local.get(['focusState'], (result) => {
   if (result.focusState && result.focusState.active) {
     focusSessionActive = true;
     startFocusTimer(result.focusState);
@@ -17,13 +20,13 @@ chrome.storage.local.get(['focusState'], (result) => {
 });
 
 // When the active tab changes
-chrome.tabs.onActivated.addListener(() => {
+browserAPI.tabs.onActivated.addListener(() => {
   saveCurrentTime();
   startNewTracking();
 });
 
 // When a tab is updated (URL changes)
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+browserAPI.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
     saveCurrentTime();
     startNewTracking();
@@ -32,7 +35,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 //starts new tracking when the user switches tabs or updates the url,
 function startNewTracking() {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  browserAPI.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0] && tabs[0].url) {
       try {
         const url = new URL(tabs[0].url);
@@ -68,7 +71,7 @@ function saveCurrentTime() {
   // Calculate month
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   
-  chrome.storage.local.get(['dailyData', 'weeklyData', 'monthlyData', 'categories'], (result) => {
+  browserAPI.storage.local.get(['dailyData', 'weeklyData', 'monthlyData', 'categories'], (result) => {
     const dailyData = result.dailyData || {};
     const weeklyData = result.weeklyData || {};
     const monthlyData = result.monthlyData || {};
@@ -121,7 +124,7 @@ function saveCurrentTime() {
       monthlyData[monthKey].entertainment += seconds;
     }
     
-    chrome.storage.local.set({ dailyData, weeklyData, monthlyData });
+    browserAPI.storage.local.set({ dailyData, weeklyData, monthlyData });
   });
 }
 
@@ -132,7 +135,7 @@ function startFocusTimer(state) {
   console.log('Background timer started with state:', state);
   
   focusTimerInterval = setInterval(() => {
-    chrome.storage.local.get(['focusState'], (result) => {
+    browserAPI.storage.local.get(['focusState'], (result) => {
       const focusState = result.focusState;
       
       if (!focusState || !focusState.active) {
@@ -159,7 +162,7 @@ function startFocusTimer(state) {
           console.log('Break ended, new focus session started');
           
           // Send notification to popup if open
-          chrome.runtime.sendMessage({ action: 'timerComplete', type: 'break' }).catch(() => {});
+          browserAPI.runtime.sendMessage({ action: 'timerComplete', type: 'break' }).catch(() => {});
         } else {
           // Focus session ended, check if it's time for long break
           focusState.sessionCount++;
@@ -179,11 +182,11 @@ function startFocusTimer(state) {
           updateStreak();
           
           // Send notification to popup if open
-          chrome.runtime.sendMessage({ action: 'timerComplete', type: 'focus', isLongBreak }).catch(() => {});
+          browserAPI.runtime.sendMessage({ action: 'timerComplete', type: 'focus', isLongBreak }).catch(() => {});
         }
       }
       
-      chrome.storage.local.set({ focusState }, () => {
+      browserAPI.storage.local.set({ focusState }, () => {
         console.log('Focus state saved to storage');
       });
     });
@@ -194,7 +197,7 @@ function startFocusTimer(state) {
 function saveFocusSessionCount(count) {
   const today = new Date().toISOString().split('T')[0];
   
-  chrome.storage.local.get(['focusSessions'], (result) => {
+  browserAPI.storage.local.get(['focusSessions'], (result) => {
     const focusSessions = result.focusSessions || {};
     
     if (!focusSessions[today]) {
@@ -203,7 +206,7 @@ function saveFocusSessionCount(count) {
     
     focusSessions[today].count = count;
     
-    chrome.storage.local.set({ focusSessions }, () => {
+    browserAPI.storage.local.set({ focusSessions }, () => {
       console.log('Focus session count saved:', count);
     });
   });
@@ -212,7 +215,7 @@ function saveFocusSessionCount(count) {
 function updateStreak() {
   const today = new Date().toISOString().split('T')[0];
   
-  chrome.storage.local.get(['focusStreak', 'focusSessions'], (result) => {
+  browserAPI.storage.local.get(['focusStreak', 'focusSessions'], (result) => {
     const focusSessions = result.focusSessions || {};
     const focusStreak = result.focusStreak || { currentStreak: 0, lastDate: null, longestStreak: 0 };
     
@@ -248,19 +251,19 @@ function updateStreak() {
       focusStreak.longestStreak = focusStreak.currentStreak;
     }
     
-    chrome.storage.local.set({ focusStreak }, () => {
+    browserAPI.storage.local.set({ focusStreak }, () => {
       console.log('Streak updated:', focusStreak.currentStreak, 'days');
     });
   });
 }
 
 // Listen for messages from popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'categorize') {
-    chrome.storage.local.get(['categories'], (result) => {
+    browserAPI.storage.local.get(['categories'], (result) => {
       const categories = result.categories || {};
       categories[request.site] = request.category;
-      chrome.storage.local.set({ categories });
+      browserAPI.storage.local.set({ categories });
       sendResponse({ success: true });
     });
     return true;
@@ -283,26 +286,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sessionCount: request.sessionCount || 0,
         completedToday: request.completedToday || 0
       };
-      chrome.storage.local.set({ focusState }, () => {
+      browserAPI.storage.local.set({ focusState }, () => {
         console.log('Focus state saved, starting timer');
         startFocusTimer(focusState);
       });
       sendResponse({ success: true });
     } else if (request.state === 'resume') {
       focusSessionActive = !request.isBreak;
-      chrome.storage.local.get(['focusState'], (result) => {
+      browserAPI.storage.local.get(['focusState'], (result) => {
         const focusState = result.focusState;
         focusState.paused = false;
-        chrome.storage.local.set({ focusState }, () => {
+        browserAPI.storage.local.set({ focusState }, () => {
           startFocusTimer(focusState);
           console.log('Focus session resumed');
         });
       });
     } else if (request.state === 'pause') {
-      chrome.storage.local.get(['focusState'], (result) => {
+      browserAPI.storage.local.get(['focusState'], (result) => {
         const focusState = result.focusState;
         focusState.paused = true;
-        chrome.storage.local.set({ focusState }, () => {
+        browserAPI.storage.local.set({ focusState }, () => {
           clearInterval(focusTimerInterval);
           console.log('Focus session paused');
         });
@@ -310,16 +313,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (request.state === 'stop') {
       focusSessionActive = false;
       clearInterval(focusTimerInterval);
-      chrome.storage.local.set({ focusState: { active: false } }, () => {
+      browserAPI.storage.local.set({ focusState: { active: false } }, () => {
         console.log('Focus session stopped');
       });
     } else if (request.state === 'skipBreak') {
       focusSessionActive = true;
-      chrome.storage.local.get(['focusState'], (result) => {
+      browserAPI.storage.local.get(['focusState'], (result) => {
         const focusState = result.focusState;
         focusState.isBreak = false;
         focusState.timeRemaining = focusState.focusDuration;
-        chrome.storage.local.set({ focusState }, () => {
+        browserAPI.storage.local.set({ focusState }, () => {
           startFocusTimer(focusState);
           console.log('Break skipped, new focus session');
         });
@@ -330,7 +333,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   
   if (request.action === 'getFocusState') {
-    chrome.storage.local.get(['focusState', 'focusSessions'], (result) => {
+    browserAPI.storage.local.get(['focusState', 'focusSessions'], (result) => {
       sendResponse({ 
         focusState: result.focusState || { active: false },
         focusSessions: result.focusSessions || {}

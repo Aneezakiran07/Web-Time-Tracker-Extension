@@ -31,6 +31,9 @@ Everything stays on your machine.
 - **HTML/CSS**
 
 ## How to Install
+# Method 1:
+1. If you use FireFox, then go to this link to get the extension.
+# Method 2:
 1. Clone this repository.
 2. Open Chrome and go to `chrome://extensions/`.
 3. Enable **Developer Mode** (top right).
@@ -39,3 +42,7 @@ Everything stays on your machine.
 ## Future Enhancements
 - well i want to make it so that user can track how much time they spend on work and on entertainment, but since it have a privacy first approach, i am not sure if i should add this feature :"|
 - Integrate with Focus sessions, and my new project STUDYFOCUS
+
+## Note:
+This uploaded project on github works for Chrome, if you want to use it on Firefox, please go to this link to get the extension.
+Or, you can update the manifest.json file with firefoxjson.txt
