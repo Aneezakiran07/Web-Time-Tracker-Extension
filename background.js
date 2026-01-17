@@ -6,7 +6,6 @@ let focusTimerInterval = null;
 // Browser API compatibility (works for both Chrome and Firefox)
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
-// 🍳 FLAVORTOWN INTEGRATION
 const FLAVORTOWN_PROJECT_ID = 6914;
 
 // Only use webRequest for Firefox (Manifest V2)
@@ -24,10 +23,10 @@ if (typeof browser !== 'undefined' && browser.webRequest) {
     { urls: ["*://flavortown.hackclub.com/*"] },
     ["blocking", "requestHeaders"]
   );
-  console.log('🍳 Flavortown header injection ready! (Firefox webRequest)');
+  console.log(' Flavortown header injection ready! (Firefox webRequest)');
 } else {
   // Chrome: Headers are added via declarativeNetRequest (see rules.json)
-  console.log('🍳 Flavortown header injection ready! (Chrome declarativeNetRequest)');
+  console.log(' Flavortown header injection ready! (Chrome declarativeNetRequest)');
 }
 
 //in background.js, we have those functions that will run in the background
