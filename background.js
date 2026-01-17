@@ -3,31 +3,32 @@ let startTime = null;
 let focusSessionActive = false;
 let focusTimerInterval = null;
 
-
-const FLAVORTOWN_PROJECT_ID = 6914; // ← CHANGE THIS TO YOUR REAL PROJECT ID
-
-// Ping Flavortown to register usage
-async function pingFlavortown() {
-  try {
-    const response = await fetch('https://flavortown.hackclub.com/', {
-      method: 'GET',
-      headers: {
-        [`X-Flavortown-Ext-${FLAVORTOWN_PROJECT_ID}`]: 'true'
-      }
-    });
-    console.log('🍳 Flavortown ping sent:', response.status);
-  } catch (error) {
-    console.error('Flavortown ping failed:', error);
-  }
-}
-
-// Call this when extension loads
-pingFlavortown();
-
-// Also ping when user actually visits Flavortown
-
 // Browser API compatibility (works for both Chrome and Firefox)
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
+// 🍳 FLAVORTOWN INTEGRATION
+const FLAVORTOWN_PROJECT_ID = 6914;
+
+// Only use webRequest for Firefox (Manifest V2)
+// Chrome (Manifest V3) uses declarativeNetRequest via rules.json
+if (typeof browser !== 'undefined' && browser.webRequest) {
+  // Firefox: Use webRequest API
+  browser.webRequest.onBeforeSendHeaders.addListener(
+    function(details) {
+      details.requestHeaders.push({
+        name: `X-Flavortown-Ext-${FLAVORTOWN_PROJECT_ID}`,
+        value: 'true'
+      });
+      return { requestHeaders: details.requestHeaders };
+    },
+    { urls: ["*://flavortown.hackclub.com/*"] },
+    ["blocking", "requestHeaders"]
+  );
+  console.log('🍳 Flavortown header injection ready! (Firefox webRequest)');
+} else {
+  // Chrome: Headers are added via declarativeNetRequest (see rules.json)
+  console.log('🍳 Flavortown header injection ready! (Chrome declarativeNetRequest)');
+}
 
 //in background.js, we have those functions that will run in the background
 //like the focus timer and the time tracking
@@ -129,9 +130,8 @@ function saveCurrentTime() {
       weeklyData[weekKey].cooking += seconds;
       monthlyData[monthKey].cooking += seconds;
       console.log('Cooking time added:', seconds);
- 
-      pingFlavortown();
-}
+    }
+    
     // If focus session is active, count as study time
     if (focusSessionActive) {
       dailyData[today].study += seconds;

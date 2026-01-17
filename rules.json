@@ -6,7 +6,7 @@
       "type": "modifyHeaders",
       "requestHeaders": [
         {
-          "header": "X-Flavortown-Ext-00",
+          "header": "X-Flavortown-Ext-6914",
           "operation": "set",
           "value": "true"
         }
@@ -14,7 +14,7 @@
     },
     "condition": {
       "urlFilter": "*://flavortown.hackclub.com/*",
-      "resourceTypes": ["main_frame", "sub_frame", "xmlhttprequest"]
+      "resourceTypes": ["main_frame", "sub_frame", "xmlhttprequest", "other"]
     }
   }
 ]

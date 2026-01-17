@@ -1,16 +1,21 @@
-
 {
   "manifest_version": 3,
   "name": "Sizzle: Focus & Habit Time Tracker",
   "version": "1.0",
-  "description": "Focus & Habit Time Tracker!",
+  "description": "A habit-focused time tracker with Power Sizzle sessions.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": [
     "tabs",
     "storage",
     "declarativeNetRequest"
   ],
   "host_permissions": [
-    "*://flavortown.com/*"
+    "*://flavortown.hackclub.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -21,26 +26,16 @@
       "128": "icons/icon128.png"
     }
   },
-  "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
   "background": {
     "service_worker": "background.js"
   },
   "declarative_net_request": {
-    "rule_resources": [{
-      "id": "ruleset_1",
-      "enabled": true,
-      "path": "rules.json"
-    }]
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "aneezakiran07@gmail.com",
-      "strict_min_version": "109.0"
-    }
+    "rule_resources": [
+      {
+        "id": "flavortown_headers",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
   }
 }
