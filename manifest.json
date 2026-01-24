@@ -12,7 +12,8 @@
   "permissions": [
     "tabs",
     "storage",
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "offscreen"
   ],
   "host_permissions": [
     "*://flavortown.hackclub.com/*"
@@ -37,5 +38,11 @@
         "path": "rules.json"
       }
     ]
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["sounds/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

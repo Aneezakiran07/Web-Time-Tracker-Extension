@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Sizzle: Focus & Habit Time Tracker",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "A habit-focused time tracker with Power Sizzle sessions.",
   "icons": {
     "16": "icons/icon16.png",
@@ -33,5 +33,6 @@
       "id": "aneezakiran07@gmail.com",
       "strict_min_version": "109.0"
     }
-  }
+  },
+  "web_accessible_resources": ["sounds/*"]
 }

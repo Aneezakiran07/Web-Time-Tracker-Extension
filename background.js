@@ -3,14 +3,58 @@ let startTime = null;
 let focusSessionActive = false;
 let focusTimerInterval = null;
 
-// Browser API compatibility (works for both Chrome and Firefox)
+// Browser API compatibility - BETTER detection
+const isFirefox = typeof browser !== 'undefined' && typeof browser.runtime !== 'undefined' && typeof browser.runtime.getBrowserInfo !== 'undefined';
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
 const FLAVORTOWN_PROJECT_ID = 6914;
 
+console.log('🔍 Browser detection - isFirefox:', isFirefox);
+
+// Sound playing function - works for both Chrome service workers and Firefox
+async function playSound(soundFile) {
+  try {
+    console.log(`🔊 Attempting to play sound: ${soundFile}, isFirefox: ${isFirefox}`);
+    
+    if (isFirefox) {
+      // Firefox - can use Audio directly in background scripts
+      console.log('Using Firefox Audio API');
+      const soundUrl = browser.runtime.getURL(`sounds/${soundFile}`);
+      console.log('🔗 Sound URL:', soundUrl);
+      const audio = new Audio(soundUrl);
+      audio.volume = 1.0;
+      await audio.play();
+      console.log(`Sound played (Firefox): ${soundFile}`);
+    } else {
+      // Chrome MV3 - use offscreen document
+      console.log('Using Chrome offscreen document');
+      try {
+        // Try to create offscreen document (will fail if already exists)
+        await chrome.offscreen.createDocument({
+          url: 'offscreen.html',
+          reasons: ['AUDIO_PLAYBACK'],
+          justification: 'Playing notification sounds for focus timer'
+        });
+        console.log('Offscreen document created');
+      } catch (e) {
+        // Document already exists or other error
+        if (!e.message.includes('Only a single offscreen')) {
+          console.log('Note:', e.message);
+        }
+      }
+      
+      // Send message to offscreen document to play sound
+      await chrome.runtime.sendMessage({ action: 'playSound', soundFile });
+      console.log(`Sound message sent to offscreen (Chrome): ${soundFile}`);
+    }
+  } catch (err) {
+    console.error('Error playing sound:', err);
+  }
+}
+
 // Only use webRequest for Firefox (Manifest V2)
 // Chrome (Manifest V3) uses declarativeNetRequest via rules.json
-if (typeof browser !== 'undefined' && browser.webRequest) {
+if (isFirefox && browser.webRequest) {
   // Firefox: Use webRequest API
   browser.webRequest.onBeforeSendHeaders.addListener(
     function(details) {
@@ -23,10 +67,10 @@ if (typeof browser !== 'undefined' && browser.webRequest) {
     { urls: ["*://flavortown.hackclub.com/*"] },
     ["blocking", "requestHeaders"]
   );
-  console.log(' Flavortown header injection ready! (Firefox webRequest)');
+  console.log('Flavortown header injection ready! (Firefox webRequest)');
 } else {
   // Chrome: Headers are added via declarativeNetRequest (see rules.json)
-  console.log(' Flavortown header injection ready! (Chrome declarativeNetRequest)');
+  console.log('Flavortown header injection ready! (Chrome declarativeNetRequest)');
 }
 
 //in background.js, we have those functions that will run in the background
@@ -128,7 +172,7 @@ function saveCurrentTime() {
       dailyData[today].cooking += seconds;
       weeklyData[weekKey].cooking += seconds;
       monthlyData[monthKey].cooking += seconds;
-      console.log('Cooking time added:', seconds);
+      console.log('🍳 Cooking time added:', seconds);
     }
     
     // If focus session is active, count as study time
@@ -136,7 +180,7 @@ function saveCurrentTime() {
       dailyData[today].study += seconds;
       weeklyData[weekKey].study += seconds;
       monthlyData[monthKey].study += seconds;
-      console.log('Focus session active - counted as study:', seconds);
+      console.log(' Focus session active - counted as study:', seconds);
     } else if (categories[currentSite] === 'study') {
       dailyData[today].study += seconds;
       weeklyData[weekKey].study += seconds;
@@ -155,7 +199,7 @@ function saveCurrentTime() {
 function startFocusTimer(state) {
   clearInterval(focusTimerInterval);
   
-  console.log('Background timer started with state:', state);
+  console.log('⏱Background timer started with state:', state);
   
   focusTimerInterval = setInterval(() => {
     browserAPI.storage.local.get(['focusState'], (result) => {
@@ -173,21 +217,28 @@ function startFocusTimer(state) {
       }
       
       focusState.timeRemaining--;
-      console.log('Background timer tick:', focusState.timeRemaining, 'isBreak:', focusState.isBreak);
+      console.log(' Background timer tick:', focusState.timeRemaining, 'isBreak:', focusState.isBreak);
       
       if (focusState.timeRemaining <= 0) {
         if (focusState.isBreak) {
           // Break ended, start new focus session
+          playSound('break-end.mp3'); // 🔊 SOUND: Break ended
+          
           focusState.isBreak = false;
           focusState.isLongBreak = false;
           focusState.timeRemaining = focusState.focusDuration;
           focusSessionActive = true;
-          console.log('Break ended, new focus session started');
+          
+          setTimeout(() => playSound('focus-start.mp3'), 300); // 🔊 SOUND: Focus session starting
+          
+          console.log(' Break ended, new focus session started');
           
           // Send notification to popup if open
           browserAPI.runtime.sendMessage({ action: 'timerComplete', type: 'break' }).catch(() => {});
         } else {
-          // Focus session ended, check if it's time for long break
+          // Focus session ended
+          playSound('focus-end.mp3'); // 🔊 SOUND: Focus session ended
+          
           focusState.sessionCount++;
           focusState.completedToday = (focusState.completedToday || 0) + 1;
           
@@ -197,6 +248,8 @@ function startFocusTimer(state) {
           focusState.isLongBreak = isLongBreak;
           focusState.timeRemaining = isLongBreak ? focusState.longBreakDuration : focusState.breakDuration;
           focusSessionActive = false;
+          
+          setTimeout(() => playSound('break-start.mp3'), 300); // 🔊 SOUND: Break starting
           
           console.log('Focus session completed. Session #', focusState.sessionCount, isLongBreak ? '(LONG BREAK!)' : '(short break)');
           
@@ -210,7 +263,7 @@ function startFocusTimer(state) {
       }
       
       browserAPI.storage.local.set({ focusState }, () => {
-        console.log('Focus state saved to storage');
+        console.log(' Focus state saved to storage');
       });
     });
   }, 1000);
@@ -309,8 +362,11 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sessionCount: request.sessionCount || 0,
         completedToday: request.completedToday || 0
       };
+      
+      playSound('focus-start.mp3'); // 🔊 SOUND: Focus session starting
+      
       browserAPI.storage.local.set({ focusState }, () => {
-        console.log('Focus state saved, starting timer');
+        console.log(' Focus state saved, starting timer');
         startFocusTimer(focusState);
       });
       sendResponse({ success: true });
@@ -337,14 +393,20 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
       focusSessionActive = false;
       clearInterval(focusTimerInterval);
       browserAPI.storage.local.set({ focusState: { active: false } }, () => {
-        console.log('Focus session stopped');
+        console.log(' Focus session stopped');
       });
     } else if (request.state === 'skipBreak') {
       focusSessionActive = true;
+      
+      playSound('break-end.mp3'); // 🔊 SOUND: Break skipped/ended
+      
       browserAPI.storage.local.get(['focusState'], (result) => {
         const focusState = result.focusState;
         focusState.isBreak = false;
         focusState.timeRemaining = focusState.focusDuration;
+        
+        setTimeout(() => playSound('focus-start.mp3'), 300); // 🔊 SOUND: New focus session starting
+        
         browserAPI.storage.local.set({ focusState }, () => {
           startFocusTimer(focusState);
           console.log('Break skipped, new focus session');
