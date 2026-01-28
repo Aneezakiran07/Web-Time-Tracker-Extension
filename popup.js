@@ -7,6 +7,37 @@ let selectedDate = new Date();
 let calendarMonth = new Date();
 let leaderboardView = 'thisweek'; // thisweek, achievements, comparison
 
+//for the flocus
+// Load blocking toggle state
+chrome.storage.local.get(['blockingEnabled'], (result) => {
+  const blockingEnabled = result.blockingEnabled !== false;
+  const toggle = document.getElementById('blocking-toggle');
+  if (toggle) {
+    toggle.checked = blockingEnabled;
+  }
+});
+
+// Handle blocking toggle change
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('blocking-toggle');
+  
+  if (toggle) {
+    toggle.addEventListener('change', (e) => {
+      const enabled = e.target.checked;
+      chrome.storage.local.set({ blockingEnabled: enabled }, () => {
+        console.log('Blocking', enabled ? 'enabled' : 'disabled');
+        
+        // Broadcast to all tabs to update blocking state
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, { action: 'focusStateChanged' }).catch(() => {});
+          });
+        });
+      });
+    });
+  }
+});
+
 // Helper function to safely set HTML content
 function setHTML(element, htmlString) {
   // Clear existing content

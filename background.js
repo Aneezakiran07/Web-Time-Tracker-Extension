@@ -3,6 +3,44 @@ let startTime = null;
 let focusSessionActive = false;
 let focusTimerInterval = null;
 
+// ============================================================================
+// CRITICAL: Reset focus session when Chrome restarts (was closed before)
+// ============================================================================
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onStartup) {
+  chrome.runtime.onStartup.addListener(() => {
+    console.log('🔄 Chrome started - resetting focus session');
+    
+    const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+    
+    // Clear any active focus session
+    browserAPI.storage.local.set({ 
+      focusState: { 
+        active: false,
+        paused: false,
+        isBreak: false,
+        sessionCount: 0
+      }
+    }, () => {
+      console.log('✅ Focus session reset to clean state');
+      focusSessionActive = false;
+      
+      // Clear any running timer
+      if (focusTimerInterval) {
+        clearInterval(focusTimerInterval);
+        focusTimerInterval = null;
+      }
+    });
+  });
+}
+
+function broadcastFocusStateChange() {
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach(tab => {
+      chrome.tabs.sendMessage(tab.id, { action: 'focusStateChanged' }).catch(() => {});
+    });
+  });
+}
+
 // Browser API compatibility - BETTER detection
 const isFirefox = typeof browser !== 'undefined' && typeof browser.runtime !== 'undefined' && typeof browser.runtime.getBrowserInfo !== 'undefined';
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
@@ -222,43 +260,41 @@ function startFocusTimer(state) {
       if (focusState.timeRemaining <= 0) {
         if (focusState.isBreak) {
           // Break ended, start new focus session
-          playSound('break-end.mp3'); // 🔊 SOUND: Break ended
+          playSound('break-end.mp3');
           
           focusState.isBreak = false;
           focusState.isLongBreak = false;
           focusState.timeRemaining = focusState.focusDuration;
           focusSessionActive = true;
           
-          setTimeout(() => playSound('focus-start.mp3'), 300); // 🔊 SOUND: Focus session starting
+          setTimeout(() => playSound('focus-start.mp3'), 300);
           
           console.log(' Break ended, new focus session started');
           
-          // Send notification to popup if open
           browserAPI.runtime.sendMessage({ action: 'timerComplete', type: 'break' }).catch(() => {});
+          broadcastFocusStateChange();
         } else {
           // Focus session ended
-          playSound('focus-end.mp3'); // 🔊 SOUND: Focus session ended
+          playSound('focus-end.mp3');
           
           focusState.sessionCount++;
           focusState.completedToday = (focusState.completedToday || 0) + 1;
           
-          // Every 4th session gets a long break
           const isLongBreak = (focusState.sessionCount % 4 === 0);
           focusState.isBreak = true;
           focusState.isLongBreak = isLongBreak;
           focusState.timeRemaining = isLongBreak ? focusState.longBreakDuration : focusState.breakDuration;
           focusSessionActive = false;
           
-          setTimeout(() => playSound('break-start.mp3'), 300); // 🔊 SOUND: Break starting
+          setTimeout(() => playSound('break-start.mp3'), 300);
           
           console.log('Focus session completed. Session #', focusState.sessionCount, isLongBreak ? '(LONG BREAK!)' : '(short break)');
           
-          // Save completed session count and update streak
           saveFocusSessionCount(focusState.sessionCount);
           updateStreak();
           
-          // Send notification to popup if open
           browserAPI.runtime.sendMessage({ action: 'timerComplete', type: 'focus', isLongBreak }).catch(() => {});
+          broadcastFocusStateChange();
         }
       }
       
@@ -363,11 +399,12 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
         completedToday: request.completedToday || 0
       };
       
-      playSound('focus-start.mp3'); // 🔊 SOUND: Focus session starting
+      playSound('focus-start.mp3');
       
       browserAPI.storage.local.set({ focusState }, () => {
         console.log(' Focus state saved, starting timer');
         startFocusTimer(focusState);
+        broadcastFocusStateChange();
       });
       sendResponse({ success: true });
     } else if (request.state === 'resume') {
@@ -394,6 +431,7 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
       clearInterval(focusTimerInterval);
       browserAPI.storage.local.set({ focusState: { active: false } }, () => {
         console.log(' Focus session stopped');
+        broadcastFocusStateChange();
       });
     } else if (request.state === 'skipBreak') {
       focusSessionActive = true;
