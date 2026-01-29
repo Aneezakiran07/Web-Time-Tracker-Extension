@@ -32,14 +32,18 @@ Everything stays on your machine.
 - **HTML/CSS**
 
 ## How to Install
-# Method 1:
+# For FireFox:
 1. If you use FireFox, then go to this link to get the extension.
 https://addons.mozilla.org/en-US/firefox/addon/sizzle-focus-habit-tracker/
-# Method 2:
-1. Clone this repository.
-2. Open Chrome and go to `chrome://extensions/`.
-3. Enable **Developer Mode** (top right).
-4. Click **Load unpacked** and select the folder where you cloned this repo.
+# For Chrome:
+For Chrome/Edge:
+Download the extension.zip from the Releases page and unzip it.
+
+Open your browser and navigate to chrome://extensions/.
+
+Enable Developer mode (usually a toggle in the top right).
+
+Click Load unpacked and select the folder where you unzipped the files.
 
 ## Future Enhancements
 - well i want to make it so that user can track how much time they spend on work and on entertainment, but since it have a privacy first approach, i am not sure if i should add this feature :"|

@@ -357,110 +357,115 @@ html += '</div></div>';
   return html;
 }
 
-//funny 💤 emojie that will show up if u have procrastinated
-function renderAchievements(achievements, focusSessions) {
-  const streakFire = achievements.currentStudyStreak >= 7 ? '🔥🔥🔥' : 
-                     achievements.currentStudyStreak >= 3 ? '🔥🔥' : 
-                     achievements.currentStudyStreak >= 1 ? '🔥' : '💤';
-  
-  let html = '<div class="leaderboard-section">';
-  html += '<div class="section-title">Your Personal Bests</div>';
-  
-  html += '<div class="achievement-grid">';
-  
-  // Current streak
-  html += `
-    <div class="achievement-card ${achievements.currentStudyStreak > 0 ? 'achievement-active' : ''}">
-      <div class="achievement-icon">${streakFire}</div>
-      <div class="achievement-name">Current Streak</div>
-      <div class="achievement-value">${achievements.currentStudyStreak} day${achievements.currentStudyStreak !== 1 ? 's' : ''}</div>
-      ${achievements.currentStudyStreak > 0 ? '<div class="achievement-msg">Don\'t break the chain!</div>' : '<div class="achievement-msg">Study 2+ hours to start</div>'}
-    </div>
-  `;
-  
-  // Longest streak
-  html += `
-    <div class="achievement-card">
-      <div class="achievement-icon">📅</div>
-      <div class="achievement-name">Longest Streak</div>
-      <div class="achievement-value">${achievements.longestStudyStreak} day${achievements.longestStudyStreak !== 1 ? 's' : ''}</div>
-      <div class="achievement-msg">Your best run ever</div>
-    </div>
-  `;
-  
-  // Best study day
-  if (achievements.bestStudyDay?.date) {
-    const date = new Date(achievements.bestStudyDay.date);
-    const hours = Math.floor(achievements.bestStudyDay.minutes / 60);
-    const minutes = achievements.bestStudyDay.minutes % 60;
-    html += `
-      <div class="achievement-card">
-        <div class="achievement-icon">📚</div>
-        <div class="achievement-name">Best Study Day</div>
-        <div class="achievement-value">${hours}h ${minutes}m</div>
-        <div class="achievement-msg">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-      </div>
-    `;
-  }
-  
-  // Longest focus session
-  if (achievements.longestFocusSession > 0) {
-    const hours = Math.floor(achievements.longestFocusSession / 60);
-    const minutes = achievements.longestFocusSession % 60;
-    html += `
-      <div class="achievement-card">
-        <div class="achievement-icon">⏱️</div>
-        <div class="achievement-name">Longest Focus</div>
-        <div class="achievement-value">${hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`}</div>
-        <div class="achievement-msg">Single session record</div>
-      </div>
-    `;
-  }
-  
-  // Total study time
-  const totalHours = Math.floor(achievements.totalStudyTime / 60);
-  html += `
-    <div class="achievement-card">
-      <div class="achievement-icon">💪</div>
-      <div class="achievement-name">Total Study Time</div>
-      <div class="achievement-value">${totalHours}h</div>
-      <div class="achievement-msg">All time</div>
-    </div>
-  `;
-  
-  // Total focus sessions
-  html += `
-    <div class="achievement-card">
-      <div class="achievement-icon">🎯</div>
-      <div class="achievement-name">Focus Sessions</div>
-      <div class="achievement-value">${achievements.totalFocusSessions}</div>
-      <div class="achievement-msg">Completed</div>
-    </div>
-  `;
-  
-  html += '</div>';
-  
-  // Badges section
-  if (achievements.badges && achievements.badges.length > 0) {
-    html += '<div class="section-title" style="margin-top: 20px;">🎖️ Badges Earned</div>';
-    html += '<div class="badge-grid">';
+function renderAchievements(achievementsData, focusSessions) {
+  // Calculate achievements from actual data
+  chrome.storage.local.get(['focusStreak', 'dailyData', 'weeklyData'], (result) => {
+    const focusStreak = result.focusStreak || { currentStreak: 0, longestStreak: 0 };
+    const dailyData = result.dailyData || {};
     
-    achievements.badges.forEach(badge => {
+    // Calculate total study time from all daily data
+    let totalStudyMinutes = 0;
+    for (const [date, data] of Object.entries(dailyData)) {
+      totalStudyMinutes += Math.floor((data.study || 0) / 60);
+    }
+    
+    // Find best study day
+    let bestStudyDay = { date: null, minutes: 0 };
+    for (const [date, data] of Object.entries(dailyData)) {
+      const minutes = Math.floor((data.study || 0) / 60);
+      if (minutes > bestStudyDay.minutes) {
+        bestStudyDay = { date, minutes };
+      }
+    }
+    
+    // Calculate total focus sessions
+    let totalFocusSessions = 0;
+    for (const [date, data] of Object.entries(focusSessions)) {
+      totalFocusSessions += data.count || 0;
+    }
+    
+    const currentStreak = focusStreak.currentStreak || 0;
+    const longestStreak = focusStreak.longestStreak || 0;
+    
+    const streakFire = currentStreak >= 7 ? '🔥🔥🔥' : 
+                       currentStreak >= 3 ? '🔥🔥' : 
+                       currentStreak >= 1 ? '🔥' : '💤';
+    
+    let html = '<div class="leaderboard-section">';
+    html += '<div class="section-title">Your Personal Bests</div>';
+    
+    html += '<div class="achievement-grid">';
+    
+    // Current streak
+    html += `
+      <div class="achievement-card ${currentStreak > 0 ? 'achievement-active' : ''}">
+        <div class="achievement-icon">${streakFire}</div>
+        <div class="achievement-name">Current Streak</div>
+        <div class="achievement-value">${currentStreak} day${currentStreak !== 1 ? 's' : ''}</div>
+        ${currentStreak > 0 ? '<div class="achievement-msg">Don\'t break the chain!</div>' : '<div class="achievement-msg">Study 2+ hours to start</div>'}
+      </div>
+    `;
+    
+    // Longest streak
+    html += `
+      <div class="achievement-card">
+        <div class="achievement-icon">📅</div>
+        <div class="achievement-name">Longest Streak</div>
+        <div class="achievement-value">${longestStreak} day${longestStreak !== 1 ? 's' : ''}</div>
+        <div class="achievement-msg">Your best run ever</div>
+      </div>
+    `;
+    
+    // Best study day
+    if (bestStudyDay.date && bestStudyDay.minutes > 0) {
+      const date = new Date(bestStudyDay.date);
+      const hours = Math.floor(bestStudyDay.minutes / 60);
+      const minutes = bestStudyDay.minutes % 60;
       html += `
-        <div class="badge-card">
-          <div class="badge-emoji">${badge.emoji}</div>
-          <div class="badge-name">${badge.name}</div>
-          <div class="badge-desc">${badge.desc}</div>
+        <div class="achievement-card">
+          <div class="achievement-icon">📚</div>
+          <div class="achievement-name">Best Study Day</div>
+          <div class="achievement-value">${hours}h ${minutes}m</div>
+          <div class="achievement-msg">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
         </div>
       `;
-    });
+    } else {
+      html += `
+        <div class="achievement-card">
+          <div class="achievement-icon">📚</div>
+          <div class="achievement-name">Best Study Day</div>
+          <div class="achievement-value">0h 0m</div>
+          <div class="achievement-msg">Start studying!</div>
+        </div>
+      `;
+    }
     
-    html += '</div>';
-  }
-  
-  html += '</div>';
-  
-  return html;
+    // Total study time
+    const totalHours = Math.floor(totalStudyMinutes / 60);
+    html += `
+      <div class="achievement-card">
+        <div class="achievement-icon">💪</div>
+        <div class="achievement-name">Total Study Time</div>
+        <div class="achievement-value">${totalHours}h</div>
+        <div class="achievement-msg">All time</div>
+      </div>
+    `;
+    
+    // Total focus sessions
+    html += `
+      <div class="achievement-card">
+        <div class="achievement-icon">🎯</div>
+        <div class="achievement-name">Focus Sessions</div>
+        <div class="achievement-value">${totalFocusSessions}</div>
+        <div class="achievement-msg">Completed</div>
+      </div>
+    `;
+    
+    html += '</div></div>';
+    
+    const content = document.getElementById('leaderboard-view');
+    setHTML(content, html);
+  });
 }
 
 //function to show the comparison bw this week and last week , (will add more functionalities in comparision tab)
