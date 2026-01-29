@@ -213,7 +213,7 @@ function renderThisWeekLeaderboard(weeklyData, dailyData, categories) {
     .slice(0, 10);
   
   let html = '<div class="leaderboard-section">';
-  html += '<div class="section-title">🏆 Your Top 10 Sites This Week</div>';
+  html += '<div class="section-title">Your Top 10 Sites This Week</div>';
   
   if (sortedSites.length === 0) {
     html += '<div style="text-align: center; padding: 20px; color: #5c4033;">No browsing data this week yet!</div>';
@@ -264,7 +264,7 @@ function renderThisWeekLeaderboard(weeklyData, dailyData, categories) {
   }
 // Category champions, to show the site you visited freq and used the most in study or in entertainment
 html += '</div><div class="leaderboard-section">';
-html += '<div class="section-title">🎯 Category Champions</div>';
+html += '<div class="section-title">Category Champions</div>';
 
 const studySites = {};
 const entertainmentSites = {};
@@ -364,7 +364,7 @@ function renderAchievements(achievements, focusSessions) {
                      achievements.currentStudyStreak >= 1 ? '🔥' : '💤';
   
   let html = '<div class="leaderboard-section">';
-  html += '<div class="section-title">🏆 Your Personal Bests</div>';
+  html += '<div class="section-title">Your Personal Bests</div>';
   
   html += '<div class="achievement-grid">';
   
@@ -475,7 +475,7 @@ function renderComparison(weeklyData, categories) {
   const lastWeekData = weeklyData[lastWeekKey] || { study: 0, entertainment: 0, total: 0, sites: {} };
   
   let html = '<div class="leaderboard-section">';
-  html += '<div class="section-title">📊 This Week vs Last Week</div>';
+  html += '<div class="section-title">This Week vs Last Week</div>';
   
   html += '<div class="comparison-grid">';
   
@@ -520,7 +520,7 @@ function renderComparison(weeklyData, categories) {
   html += '</div>';
   
   // Most improved sites
-  html += '<div class="section-title" style="margin-top: 20px;">⭐ Most Improved</div>';
+  html += '<div class="section-title" style="margin-top: 20px;">Most Improved</div>';
   
   const improvements = [];
   for (const [site, thisWeekTime] of Object.entries(thisWeekData.sites || {})) {
@@ -574,17 +574,6 @@ function renderToday(dailyData, categories) {
     const todayFocus = focusSessions[today] || { count: 0, totalMinutes: 0 };
     
     let html = '';
-    
-    // Show streak badge if there's a streak
-    if (focusStreak.currentStreak > 0) {
-      html += `
-        <div class="streak-badge">
-          <div>🔥 FOCUS STREAK 🔥</div>
-          <div class="streak-number">${focusStreak.currentStreak}</div>
-          <div class="streak-text">day${focusStreak.currentStreak > 1 ? 's' : ''} in a row!</div>
-        </div>
-      `;
-    }
     
     html += createStatsHTML(data.cooking || 0, studyTime, entertainmentTime, todayFocus.count, todayFocus.totalMinutes);
     html += createPieChart(data.sites);
@@ -949,21 +938,11 @@ function renderFocusSetup() {
     const focusStreak = result.focusStreak || { currentStreak: 0, lastDate: null };
     
     let streakHTML = '';
-    if (focusStreak.currentStreak > 0) {
-      streakHTML = `
-        <div class="streak-badge">
-          <div>🔥 FOCUS STREAK 🔥</div>
-          <div class="streak-number">${focusStreak.currentStreak}</div>
-          <div class="streak-text">day${focusStreak.currentStreak > 1 ? 's' : ''} in a row!</div>
-        </div>
-      `;
-    }
-    
     const setupHTML = `
       ${streakHTML}
       
       <div class="focus-setup">
-        <div class="focus-title">🎯 Start a Focus Session</div>
+        <div class="focus-title">Start a Focus Session</div>
         
         ${sessionsToday > 0 ? `<div style="text-align: center; margin-bottom: 15px; padding: 10px; background: #c8e6c9; border-radius: 10px; color: #2e7d32; font-weight: bold;">
           🔥 ${sessionsToday} session${sessionsToday > 1 ? 's' : ''} completed today!
@@ -1010,12 +989,12 @@ function renderFocusSetup() {
           </div>
         </div>
         
-        <button class="start-btn" id="startFocus">🚀 Start Focus Session</button>
+        <button class="start-btn" id="startFocus">Start Focus Session</button>
       </div>
       
       <div style="text-align: center; padding: 15px; font-size: 12px; color: #5c4033;">
         💡 During focus sessions, all browsing time is counted as <strong>Study</strong>!<br>
-        Complete 4 sessions to earn a long break! 🎉
+        Complete 4 sessions to earn a long break!
       </div>
     `;
     
@@ -1035,7 +1014,7 @@ function renderFocusActive() {
   
   return `
     <div class="focus-active">
-      <div class="focus-label">🎯 FOCUS MODE ACTIVE</div>
+      <div class="focus-label">FOCUS MODE ACTIVE</div>
       <div class="focus-timer" id="timerDisplay">${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}</div>
       
       <div class="session-info">
@@ -1380,7 +1359,7 @@ function createSitesList(timeData, categories, sortByTime = false) {
     entries = entries.sort((a, b) => b[1] - a[1]);
   }
   
-  let html = '<div class="sites-list"><div style="font-weight: bold; margin-bottom: 10px; text-align: center;">📊 All Sites (right-click to categorize)</div>';
+  let html = '<div class="sites-list"><div style="font-weight: bold; margin-bottom: 10px; text-align: center;">All Sites (right-click to categorize)</div>';
   
   for (const [site, seconds] of entries) {
     const minutes = Math.floor(seconds / 60);
@@ -1517,3 +1496,114 @@ function createPieChart(timeData, period = 'today', customLabel = null) {
 // Initial load
 loadData();
 
+
+// ============================================================================
+// BLOCKED SITES MANAGEMENT
+// ============================================================================
+
+const DEFAULT_BLOCKED_SITES = [
+  'instagram.com',
+  'facebook.com',
+  'twitter.com',
+  'x.com',
+  'reddit.com',
+  'tiktok.com',
+  'snapchat.com',
+  'youtube.com',
+  'netflix.com',
+  'twitch.tv'
+];
+
+function loadBlockedSites() {
+  chrome.storage.local.get(['blockedSites'], (result) => {
+    const blockedSites = result.blockedSites || DEFAULT_BLOCKED_SITES;
+    renderBlockedSites(blockedSites);
+  });
+}
+
+function renderBlockedSites(sites) {
+  const listContainer = document.getElementById('blocked-sites-list');
+  if (!listContainer) return;
+  
+  if (sites.length === 0) {
+    setHTML(listContainer, '<div class="empty-blocked-list">No blocked sites. Add one above!</div>');
+    return;
+  }
+  
+  const html = sites.map((site, index) => `
+    <div class="blocked-item" data-index="${index}">
+      <span class="blocked-item-name">${site}</span>
+      <button class="remove-blocked-btn" data-site="${site}">×</button>
+    </div>
+  `).join('');
+  
+  setHTML(listContainer, html);
+  
+  document.querySelectorAll('.remove-blocked-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const site = e.target.dataset.site;
+      removeBlockedSite(site);
+    });
+  });
+}
+
+function addBlockedSite(site) {
+  const domainRegex = /^([a-z0-9-]+\.)*[a-z0-9-]+\.[a-z]{2,}$/i;
+  if (!domainRegex.test(site)) {
+    alert('Please enter a valid domain (e.g., example.com)');
+    return;
+  }
+  
+  chrome.storage.local.get(['blockedSites'], (result) => {
+    const blockedSites = result.blockedSites || DEFAULT_BLOCKED_SITES;
+    
+    if (blockedSites.includes(site)) {
+      alert('This site is already blocked!');
+      return;
+    }
+    
+    blockedSites.push(site);
+    chrome.storage.local.set({ blockedSites }, () => {
+      loadBlockedSites();
+      document.getElementById('new-blocked-site').value = '';
+    });
+  });
+}
+
+function removeBlockedSite(site) {
+  chrome.storage.local.get(['blockedSites'], (result) => {
+    const blockedSites = result.blockedSites || DEFAULT_BLOCKED_SITES;
+    const filtered = blockedSites.filter(s => s !== site);
+    
+    chrome.storage.local.set({ blockedSites: filtered }, () => {
+      loadBlockedSites();
+    });
+  });
+}
+
+setTimeout(() => {
+  loadBlockedSites();
+  
+  const addBtn = document.getElementById('add-blocked-site-btn');
+  const input = document.getElementById('new-blocked-site');
+  
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      const site = input.value.trim().toLowerCase();
+      if (site) {
+        addBlockedSite(site);
+      }
+    });
+  }
+  
+  if (input) {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const site = input.value.trim().toLowerCase();
+        if (site) {
+          addBlockedSite(site);
+        }
+      }
+    });
+  }
+}, 500);

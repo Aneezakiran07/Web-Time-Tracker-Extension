@@ -17,6 +17,7 @@ The goal of this project is to create a lightweight tool that helps users become
 - Personal Leaderboard to show your top 10 websites ,and Displays your personal records like study streaks, longest focus session, and earned badges
 - Personal leaderboard will also Compares this week vs last week to show if you're improving (more study time, less procrastination)
 - Personal leaderboard will also show the comparision of your time spent this week and last week. 
+- During pomodoro focus sessions, it will block distraction sites. User can also add or remove the distractions site through UI
 
 ## Privacy First
 Unlike other trackers, this extension:
@@ -33,6 +34,7 @@ Everything stays on your machine.
 ## How to Install
 # Method 1:
 1. If you use FireFox, then go to this link to get the extension.
+https://addons.mozilla.org/en-US/firefox/addon/sizzle-focus-habit-tracker/
 # Method 2:
 1. Clone this repository.
 2. Open Chrome and go to `chrome://extensions/`.
@@ -43,6 +45,9 @@ Everything stays on your machine.
 - well i want to make it so that user can track how much time they spend on work and on entertainment, but since it have a privacy first approach, i am not sure if i should add this feature :"|
 - Integrate with Focus sessions, and my new project STUDYFOCUS
 
-## Note:
+### Note:
 This uploaded project on github works for Chrome, if you want to use it on Firefox, please go to this link to get the extension.
+https://addons.mozilla.org/en-US/firefox/addon/sizzle-focus-habit-tracker/
 Or, you can update the manifest.json file with firefoxjson.txt
+
+

@@ -300,16 +300,20 @@
   }
 
   .focus-active {
-    background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+    /* Frosted glass effect */
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px); /* This adds the "frosted" look if supported */
     padding: 20px;
     border-radius: 15px;
     text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Soft edge to define the glass */
   }
 
   .focus-timer {
     font-size: 48px;
     font-weight: bold;
-    color: #2e7d32;
+    /* Using a deep charcoal for contrast on the light glass */
+    color: #333333; 
     margin: 20px 0;
     font-family: 'Courier New', monospace;
   }
@@ -317,6 +321,7 @@
   .focus-label {
     font-size: 14px;
     color: #5c4033;
+    font-weight: 600;
     margin-bottom: 10px;
   }
 
@@ -326,6 +331,7 @@
     justify-content: center;
     margin: 15px 0;
     font-size: 12px;
+    color: #5c4033;
   }
 
   .session-stat {
@@ -562,26 +568,7 @@
     font-size: 48px;
     margin-bottom: 10px;
   }
-  .streak-badge {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
-  color: white;
-  padding: 15px;
-  margin: 15px;
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
 
-.streak-number {
-  font-size: 36px;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
-.streak-text {
-  font-size: 14px;
-  opacity: 0.9;
-}
 /* ============ LEADERBOARD STYLES ============ */
 
 .leaderboard-container {
@@ -1017,9 +1004,145 @@
   color: #5c4033;
   font-weight: 600;
 }
+
+.blocked-sites-section {
+  margin: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 15px;
+}
+
+.section-header h3 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #5c4033;
+  margin-bottom: 5px;
+}
+
+.hint-text {
+  font-size: 12px;
+  color: #8d6e63;
+  margin-bottom: 15px;
+}
+
+.add-site-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.add-site-form input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 2px solid #e8c896;
+  border-radius: 10px;
+  font-size: 13px;
+  background: white;
+  color: #5c4033;
+  transition: all 0.3s;
+}
+
+.add-site-form input:focus {
+  outline: none;
+  border-color: #d4a574;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.2);
+}
+
+.add-site-form input::placeholder {
+  color: #c8b8a8;
+}
+
+.add-site-form button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #d4a574, #b8936f);
+  color: white;
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.add-site-form button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(212, 165, 116, 0.3);
+}
+
+.blocked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.blocked-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.blocked-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.blocked-list::-webkit-scrollbar-thumb {
+  background: #d4a574;
+  border-radius: 10px;
+}
+
+.blocked-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: white;
+  border-radius: 10px;
+  border: 2px solid #e8c896;
+  transition: all 0.3s;
+}
+
+.blocked-item:hover {
+  border-color: #ff9999;
+  transform: translateX(4px);
+}
+
+.blocked-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c4033;
+}
+
+.remove-blocked-btn {
+  background: linear-gradient(135deg, #ff9999, #ff7878);
+  color: white;
+  border: 2px solid #ff7878;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.remove-blocked-btn:hover {
+  background: linear-gradient(135deg, #ff7878, #ff5858);
+  transform: scale(1.15) rotate(90deg);
+}
+
+.empty-blocked-list {
+  text-align: center;
+  padding: 30px;
+  color: #9a8a7a;
+  font-size: 13px;
+}
 </style>
-  </style>
 </head>
+
 <body>
   <div class="header">
     <h1>🍳 Sizzle: Focus & Habit Time Tracker</h1>
@@ -1038,34 +1161,49 @@
   <div id="leaderboard-content" class="tab-content">
     <div class="leaderboard-container">
       <div class="view-selector">
-        <button class="leaderboard-view-btn active" data-view="thisweek">📊 Weekly Heat</button>
-        <button class="leaderboard-view-btn" data-view="achievements">🏆 Records</button>
-        <button class="leaderboard-view-btn" data-view="comparison">📈 Compare</button>
+        <button class="leaderboard-view-btn active" data-view="thisweek">Weekly Heat</button>
+        <button class="leaderboard-view-btn" data-view="achievements">Records</button>
+        <button class="leaderboard-view-btn" data-view="comparison">Compare</button>
       </div>
       <div id="leaderboard-view"></div>
     </div>
   </div>
   
   <div id="focus-content" class="tab-content">
+
     <div class="focus-container">
       <div id="focus-view">
         </div>
     </div>
-        <div class="focus-settings">
+    <div class="focus-settings">
   <label class="checkbox-container">
     <input type="checkbox" id="blocking-toggle" checked>
     <span class="checkmark"></span>
     <span class="checkbox-label">Block distraction sites during focus</span>
   </label>
 </div>
+
+    <div class="blocked-sites-section">
+      <div class="section-header">
+        <h3>🚫 Blocked Sites</h3>
+        <p class="hint-text">These sites will be blocked during focus sessions</p>
+      </div>
+      
+      <div class="add-site-form">
+        <input type="text" id="new-blocked-site" placeholder="example.com" />
+        <button id="add-blocked-site-btn">Add</button>
+      </div>
+      
+      <div id="blocked-sites-list" class="blocked-list"></div>
+    </div>
   </div>
   
   <div id="timetravel-content" class="tab-content">
     <div class="time-travel-container">
       <div class="view-selector">
-        <button class="view-btn active" data-view="daily">📅 Daily</button>
-        <button class="view-btn" data-view="weekly">📊 Weekly</button>
-        <button class="view-btn" data-view="monthly">📈 Monthly</button>
+        <button class="view-btn active" data-view="daily">Daily</button>
+        <button class="view-btn" data-view="weekly">Weekly</button>
+        <button class="view-btn" data-view="monthly">Monthly</button>
       </div>
       <div id="timetravel-viewer"></div>
       <div id="timetravel-stats"></div>

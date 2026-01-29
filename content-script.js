@@ -85,7 +85,7 @@ function checkAndBlock() {
   const hostname = window.location.hostname;
   const url = window.location.href;
   
-  chrome.storage.local.get(['focusState', 'blockList', 'cooldownSites', 'blockingEnabled'], (result) => {
+  chrome.storage.local.get(['focusState', 'blockedSites', 'blockingEnabled'], (result) => {
     const focusState = result.focusState || {};
     const blockingEnabled = result.blockingEnabled !== false;
     
@@ -94,18 +94,13 @@ function checkAndBlock() {
       return;
     }
     
-    const blockList = result.blockList || [
+    const blockedSites = result.blockedSites || [
       'instagram.com', 'facebook.com', 'twitter.com', 'x.com',
-      'reddit.com', 'tiktok.com', 'snapchat.com', 'netflix.com',
-      'hulu.com', 'twitch.tv', 'discord.com', 'pinterest.com',
-      'tumblr.com', '9gag.com', 'buzzfeed.com', 'dailymail.co.uk',
-      'espn.com', 'cnn.com', 'bbc.com', 'news.ycombinator.com'
+      'reddit.com', 'tiktok.com', 'snapchat.com', 'youtube.com',
+      'netflix.com', 'twitch.tv'
     ];
     
-    const cooldownSites = result.cooldownSites || [];
-    const allBlockedSites = [...blockList, ...cooldownSites];
-    
-    const shouldBlock = allBlockedSites.some(site => matchesDomain(hostname, site));
+    const shouldBlock = blockedSites.some(site => matchesDomain(hostname, site));
     
     if (shouldBlock) {
       createBlockOverlay();

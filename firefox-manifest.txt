@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Sizzle: Focus & Habit Time Tracker",
-  "version": "1.0.0",
+  "version": "1.0",
   "description": "A habit-focused time tracker with Power Sizzle sessions.",
   "icons": {
     "16": "icons/icon16.png",
@@ -14,6 +14,7 @@
     "storage",
     "webRequest",
     "webRequestBlocking",
+    "<all_urls>",
     "*://flavortown.hackclub.com/*"
   ],
   "browser_action": {
@@ -28,6 +29,13 @@
   "background": {
     "scripts": ["background.js"]
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "aneezakiran07@gmail.com",
