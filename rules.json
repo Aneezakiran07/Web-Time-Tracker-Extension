@@ -13,8 +13,14 @@
       ]
     },
     "condition": {
-      "urlFilter": "*://flavortown.hackclub.com/*",
-      "resourceTypes": ["main_frame", "sub_frame", "xmlhttprequest", "other"]
+      "urlFilter": "|https://flavortown.hackclub.com/*",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame",
+        "xmlhttprequest",
+        "fetch",
+        "other"
+      ]
     }
   }
 ]
