@@ -18,7 +18,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// 🔄 CHROME CLOSE DETECTION - Reset focus session when browser starts
+// CHROME CLOSE DETECTION - Reset focus session when browser starts
 if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onStartup) {
   chrome.runtime.onStartup.addListener(() => {
     console.log('🔄 Chrome started - resetting focus session');

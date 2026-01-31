@@ -563,10 +563,11 @@ function renderComparison(weeklyData, categories) {
 // Function to render today's stats(how much time you have spent on each )
 function renderToday(dailyData, categories) {
   const today = new Date().toISOString().split('T')[0];
-  const data = dailyData[today] || { cooking: 0, sites: {} };
+  const data = dailyData[today] || { cooking: 0, study: 0, entertainment: 0, sites: {} };
   
+  // USEd DIRECT VALUES - includes focus session time!
   let studyTime = data.study || 0;
-let entertainmentTime = data.entertainment || 0;
+  let entertainmentTime = data.entertainment || 0;
 
   for (const [site, seconds] of Object.entries(data.sites)) {
     if (categories[site] === 'study') studyTime += seconds;
