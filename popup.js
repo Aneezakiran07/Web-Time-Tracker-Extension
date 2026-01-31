@@ -565,8 +565,9 @@ function renderToday(dailyData, categories) {
   const today = new Date().toISOString().split('T')[0];
   const data = dailyData[today] || { cooking: 0, sites: {} };
   
-  let studyTime = 0, entertainmentTime = 0;
-  
+  let studyTime = data.study || 0;
+let entertainmentTime = data.entertainment || 0;
+
   for (const [site, seconds] of Object.entries(data.sites)) {
     if (categories[site] === 'study') studyTime += seconds;
     if (categories[site] === 'entertainment') entertainmentTime += seconds;
@@ -1182,29 +1183,29 @@ function addBreakListeners() {
 function startUITimer() {
   clearInterval(focusState.timerInterval);
   
-  console.log('Starting UI timer, current state:', focusState);
+  console.log('🎬 Starting UI timer, current state:', focusState);
   
-  // Sync with storage every second
+  // Update display 10 times per second for smooth milliseconds
   focusState.timerInterval = setInterval(() => {
     chrome.storage.local.get(['focusState'], (result) => {
       if (!result.focusState || !result.focusState.active) {
-        console.log('No active focus state, stopping UI timer');
+        console.log('❌ No active focus state, stopping UI timer');
         clearInterval(focusState.timerInterval);
         return;
       }
       
       focusState.timeRemaining = result.focusState.timeRemaining;
+      focusState.milliseconds = result.focusState.milliseconds || 0;
       focusState.isBreak = result.focusState.isBreak;
       focusState.sessionCount = result.focusState.sessionCount;
       
-      console.log('UI timer tick:', focusState.timeRemaining, 'isBreak:', focusState.isBreak);
-      
-      // Update display
+      // ⏱️ Update display WITH MILLISECONDS
       const minutes = Math.floor(focusState.timeRemaining / 60);
       const seconds = focusState.timeRemaining % 60;
+      const ms = Math.floor(focusState.milliseconds / 100); // Convert to tenths (0-9)
       const timerElement = document.getElementById('timerDisplay');
       if (timerElement) {
-        timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${ms}`;
       }
       
       // Update progress bar
@@ -1217,7 +1218,7 @@ function startUITimer() {
         progressBar.style.width = `${progress}%`;
       }
     });
-  }, 1000);
+  }, 100); // ⚡ Update every 100ms for smooth display
 }
 
 function stopFocusSession() {
