@@ -565,14 +565,10 @@ function renderToday(dailyData, categories) {
   const today = new Date().toISOString().split('T')[0];
   const data = dailyData[today] || { cooking: 0, study: 0, entertainment: 0, sites: {} };
   
-  // USEd DIRECT VALUES - includes focus session time!
+  // USE DIRECT VALUES - includes focus session time!
   let studyTime = data.study || 0;
   let entertainmentTime = data.entertainment || 0;
-
-  for (const [site, seconds] of Object.entries(data.sites)) {
-    if (categories[site] === 'study') studyTime += seconds;
-    if (categories[site] === 'entertainment') entertainmentTime += seconds;
-  }
+  
   
   // Get focus session stats for today
   chrome.storage.local.get(['focusSessions', 'focusStreak'], (result) => {
@@ -587,7 +583,7 @@ function renderToday(dailyData, categories) {
     html += createSitesList(data.sites, categories, true);
     
     const todayContent = document.getElementById('today-content');
-  setHTML(todayContent, html);
+    setHTML(todayContent, html);
     
     addPieChartListeners();
     addContextMenuListeners();
